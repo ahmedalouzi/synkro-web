@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html { background: #09090b; }
+
+body {
+  background: #09090b;
+  color: #e4e4e7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Long-form pages (docs, privacy, terms). */
+.prose-synkro { color: #c4c4cc; line-height: 1.75; font-size: 15.5px; }
+.prose-synkro h2 { color: #f4f4f5; font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; margin: 2.6rem 0 0.75rem; scroll-margin-top: 90px; }
+.prose-synkro h3 { color: #f4f4f5; font-size: 1.05rem; font-weight: 600; margin: 1.8rem 0 0.5rem; }
+.prose-synkro p { margin: 0 0 1rem; max-width: 70ch; }
+.prose-synkro ul, .prose-synkro ol { margin: 0 0 1rem; padding-left: 1.25rem; max-width: 70ch; }
+.prose-synkro ul { list-style: disc; }
+.prose-synkro ol { list-style: decimal; }
+.prose-synkro li { margin: 0.3rem 0; }
+.prose-synkro a { color: #a5aaff; text-decoration: underline; text-underline-offset: 3px; }
+.prose-synkro code { font-family: var(--font-mono); font-size: 0.86em; background: #1c1c22; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 1px 6px; color: #e4e4e7; }
+.prose-synkro kbd { font-family: var(--font-mono); font-size: 0.8em; border: 1px solid rgba(255,255,255,0.18); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; color: #e4e4e7; }
+.prose-synkro table { width: 100%; border-collapse: collapse; margin: 0 0 1.2rem; font-size: 14px; }
+.prose-synkro th, .prose-synkro td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.prose-synkro th { color: #f4f4f5; font-weight: 600; }
+
+:focus-visible { outline: 2px solid #7c83ff; outline-offset: 2px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
