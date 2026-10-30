@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { nav, site } from '@/lib/config';
-import { SynkroMark } from './Logos';
+import { AtomvsLogo } from './Logos';
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-base/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-content items-center gap-6 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 text-ink" aria-label={`${site.name} home`}>
-          <SynkroMark />
-          <span className="font-display text-[17px] font-semibold tracking-wide">SYNKRO</span>
+          <AtomvsLogo />
+          <span className="font-display text-[17px] font-semibold tracking-wide">ATOMVS</span>
         </Link>
         <nav className="hidden items-center gap-5 text-sm text-muted sm:flex" aria-label="Main">
           {nav.map((item) => (

@@ -34,7 +34,7 @@ export function SignInForm({ onSignedIn }: { onSignedIn: () => void }) {
   return (
     <form onSubmit={submit} className="mx-auto flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-line-strong bg-panel p-7">
       <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{mode === 'signin' ? 'Sign in to Synkro' : 'Create your account'}</h1>
+        <h1 className="font-display text-2xl font-semibold">{mode === 'signin' ? 'Sign in to Atomvs' : 'Create your account'}</h1>
         <p className="text-sm text-muted">Use the same account as the desktop app.</p>
       </div>
       {error && <div role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>}
@@ -52,7 +52,7 @@ export function SignInForm({ onSignedIn }: { onSignedIn: () => void }) {
         {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
       </button>
       <p className="text-center text-sm text-muted">
-        {mode === 'signin' ? 'New to Synkro?' : 'Already have an account?'}{' '}
+        {mode === 'signin' ? 'New to Atomvs?' : 'Already have an account?'}{' '}
         <button type="button" className="text-accent underline underline-offset-4" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}>
           {mode === 'signin' ? 'Create an account' : 'Sign in'}
         </button>

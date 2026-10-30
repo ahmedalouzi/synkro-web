@@ -47,21 +47,21 @@ export default function DocsPage() {
       </aside>
 
       <article className="prose-synkro min-w-0">
-        <h1 className="mb-3 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Synkro docs</h1>
-        <p>Everything you need to build Flutter and React Native apps with Synkro.</p>
+        <h1 className="mb-3 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Atomvs docs</h1>
+        <p>Everything you need to build Flutter and React Native apps with Atomvs.</p>
 
         <h2 id="getting-started">Getting started</h2>
         <ol>
-          <li><Link href="/download">Download</Link> and install Synkro.</li>
+          <li><Link href="/download">Download</Link> and install Atomvs.</li>
           <li>Create a free account in the app, or sign in.</li>
           <li>On the start page, choose <strong>Open project</strong>, <strong>New project</strong>, <strong>Clone repo</strong> or <strong>Connect via SSH</strong>.</li>
         </ol>
-        <p>Synkro looks and works like VS Code: the same menus, command palette (<kbd>Ctrl+Shift+P</kbd>) and shortcuts. To bring over your editor settings, open <strong>Settings › General › Import Settings from VS Code</strong>.</p>
+        <p>Atomvs looks and works like VS Code: the same menus, command palette (<kbd>Ctrl+Shift+P</kbd>) and shortcuts. To bring over your editor settings, open <strong>Settings › General › Import Settings from VS Code</strong>.</p>
 
         <h2 id="projects">Projects</h2>
         <p><strong>New project</strong> asks for a framework (Flutter or React Native), a toolchain and how to start:</p>
         <ul>
-          <li><strong>Managed</strong> — Synkro runs the toolchain for you; nothing to install.</li>
+          <li><strong>Managed</strong> — Atomvs runs the toolchain for you; nothing to install.</li>
           <li><strong>Local CLI</strong> — uses the Flutter or React Native SDK on your computer. Set the Flutter path in <strong>Settings › Mobile SDKs</strong>.</li>
           <li><strong>From template</strong> — Blank, Material App, Bottom Navigation (Flutter), or Blank and Tabs (React Native).</li>
           <li><strong>Describe with AI</strong> — write a sentence about the app and the agent scaffolds the first version.</li>
@@ -87,7 +87,7 @@ export default function DocsPage() {
         <p><strong>Ctrl+K</strong> edits the selected code (or the current line) from a short instruction, and shows the result inline to accept or reject.</p>
 
         <h2 id="rules">Project rules</h2>
-        <p>Rules are instructions the AI follows in one project, such as your naming style or the state-management library to use. Open them with <strong>Settings › Rules › Open</strong>; they live in <code>.synkro/rules.md</code>. Synkro also reads <code>.cursorrules</code>, <code>.cursor/rules/*.mdc</code> and <code>AGENTS.md</code>.</p>
+        <p>Rules are instructions the AI follows in one project, such as your naming style or the state-management library to use. Open them with <strong>Settings › Rules › Open</strong>; they live in <code>.synkro/rules.md</code>. Atomvs also reads <code>.cursorrules</code>, <code>.cursor/rules/*.mdc</code> and <code>AGENTS.md</code>.</p>
 
         <h2 id="terminal">Terminal and Git</h2>
         <p>Open a terminal with <kbd>Ctrl+`</kbd> — on the start page too, where it opens in your home folder. <strong>Terminal › Run Active File</strong> saves and runs the current file (Node, TypeScript, Python, Dart, shell, PowerShell, Ruby, Go). Source control lives in the side bar: stage, commit, pull, push and switch branches.</p>

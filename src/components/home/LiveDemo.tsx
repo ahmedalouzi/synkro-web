@@ -453,7 +453,7 @@ export function LiveDemo() {
   let remaining = chars;
 
   return (
-    <div className="ld-stage" aria-label="Synkro's agent building a React Native Classes screen while the app updates on the phone preview" role="img">
+    <div className="ld-stage" aria-label="The Atomvs agent building a React Native Classes screen while the app updates on the phone preview" role="img">
       <div ref={frame} className={`ld-frame ${reloaded ? 'is-reloaded' : ''}`}>
         <div className="ld-glow" aria-hidden="true" />
 
@@ -555,7 +555,7 @@ export function LiveDemo() {
           <div className="ld-statusbar">
             <span><Icon d={ICONS.git} size={10} />master{created && '*'}</span>
             <span>⊗ 0 &nbsp;⚠ 0</span>
-            <span className="ld-statusbar__mid">Synkro Ready · school-planner</span>
+            <span className="ld-statusbar__mid">Atomvs Ready · school-planner</span>
             <span className="ld-statusbar__right">
               <span>Ln {cursorLine + 1}, Col 1</span><span>Spaces: 2</span><span>UTF-8</span><span>TypeScript JSX</span>
               <span className="ld-online"><i />Online</span>

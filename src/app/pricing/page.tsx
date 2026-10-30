@@ -6,11 +6,11 @@ export const metadata: Metadata = { title: 'Pricing' };
 const faq = [
   {
     q: 'What is “included AI usage”?',
-    a: 'Every plan includes a weekly amount of AI usage for the agent and chat. Short questions use a little, long agent tasks on large projects use more. Your remaining usage is always visible in Synkro under Settings › Plan & Usage, and it refreshes every Monday.',
+    a: 'Every plan includes a weekly amount of AI usage for the agent and chat. Short questions use a little, long agent tasks on large projects use more. Your remaining usage is always visible in Atomvs under Settings › Plan & Usage, and it refreshes every Monday.',
   },
   {
     q: 'What happens when I run out?',
-    a: 'On Free, AI requests pause until your usage refreshes the next week. On Pro, Synkro keeps working by switching to a fast model until the refresh.',
+    a: 'On Free, AI requests pause until your usage refreshes the next week. On Pro, Atomvs keeps working by switching to a fast model until the refresh.',
   },
   {
     q: 'Do Tab completions count against my usage?',

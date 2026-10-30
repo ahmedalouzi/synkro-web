@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
  * httpOnly cookies the browser's JavaScript can never read, and the API needs no CORS.
  */
 
-const API = (process.env.SYNKRO_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
+const API = (process.env.SYNKRO_API_URL || 'https://api.atomvs.com').replace(/\/+$/, '');
 const SESSION_COOKIE = 'synkro_session';
 const REFRESH_COOKIE = 'synkro_refresh';
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
@@ -35,7 +35,7 @@ async function call(path: string, init: RequestInit & { token?: string } = {}) {
   try {
     res = await fetch(`${API}${path}`, { ...init, headers, cache: 'no-store' });
   } catch {
-    throw new ApiError('The Synkro server is not reachable right now. Try again in a moment.', 503);
+    throw new ApiError('The Atomvs server is not reachable right now. Try again in a moment.', 503);
   }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(body?.message || `Request failed (${res.status})`, res.status);

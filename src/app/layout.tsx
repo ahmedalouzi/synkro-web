@@ -12,7 +12,7 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', displ
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: `${site.name} — ${site.tagline}`, template: `%s · ${site.name}` },
-  description: 'Synkro is a desktop code editor with an AI agent for building Flutter and React Native apps, with a live phone preview and one-click Android builds.',
+  description: 'Atomvs is a desktop code editor with an AI agent for building Flutter and React Native apps, with a live phone preview and one-click Android builds.',
   openGraph: { title: site.name, description: site.tagline, images: ['/screens/workspace.png'] },
 };
 

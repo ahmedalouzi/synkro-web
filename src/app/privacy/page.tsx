@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       <h1 className="mb-2 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Privacy Policy</h1>
       <p className="text-sm text-[#71717a]">Last updated: [date]</p>
 
-      <p>This policy explains what [Company name] (“Synkro”, “we”) collects when you use the Synkro desktop app and this website, why, and the choices you have.</p>
+      <p>This policy explains what Atomvs (“we”) collects when you use the Atomvs desktop app and this website, why, and the choices you have.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -48,13 +48,13 @@ export default function PrivacyPage() {
       <p>Connections use HTTPS, passwords are hashed, and session tokens stored by the app are encrypted on your device. No system is perfectly secure, so please use a strong, unique password.</p>
 
       <h2>Children</h2>
-      <p>Synkro is not intended for children under [13/16].</p>
+      <p>Atomvs is not intended for children under [13/16].</p>
 
       <h2>Changes</h2>
       <p>If we change this policy, we will update the date above and, for significant changes, let you know in the app or by email.</p>
 
       <h2>Contact</h2>
-      <p>[Company name], [address], [country] — [contact email].</p>
+      <p>Atomvs, [address], [country] — [contact email].</p>
     </article>
   );
 }

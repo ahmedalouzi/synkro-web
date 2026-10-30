@@ -49,7 +49,7 @@ export default function Home() {
           </h1>
 
           <p className="hero-sub">
-            Describe a screen. Synkro writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
+            Describe a screen. Atomvs writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -113,7 +113,7 @@ export default function Home() {
           <p className="text-muted">Flutter or React Native, from a template or from a sentence. Managed mode runs the toolchain for you — nothing to install first.</p>
         </div>
         <div className="tilt" data-reveal>
-          <Screenshot src="/screens/new-project.png" alt="The New Project dialog in Synkro with Flutter selected, toolchain options and templates" />
+          <Screenshot src="/screens/new-project.png" alt="The New Project dialog in Atomvs with Flutter selected, toolchain options and templates" />
         </div>
       </section>
 

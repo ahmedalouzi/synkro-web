@@ -22,7 +22,7 @@ export function useAccount() {
       if (!res.ok) return setState({ status: 'error', message: body?.message || 'Could not load your account.' });
       setState({ status: 'signed-in', account: body });
     } catch {
-      setState({ status: 'error', message: 'Could not reach Synkro. Check your connection and try again.' });
+      setState({ status: 'error', message: 'Could not reach Atomvs. Check your connection and try again.' });
     }
   }, []);
 

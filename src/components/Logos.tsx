@@ -1,15 +1,8 @@
-/** Synkro mark — the same orbit logo as the desktop app. */
-export function SynkroMark({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-        <ellipse cx="16" cy="16" rx="5" ry="11" />
-        <ellipse cx="16" cy="16" rx="5" ry="11" transform="rotate(60 16 16)" />
-        <ellipse cx="16" cy="16" rx="5" ry="11" transform="rotate(120 16 16)" />
-      </g>
-      <circle cx="16" cy="16" r="1.6" fill="currentColor" />
-    </svg>
-  );
+import Image from 'next/image';
+
+/** The Atomvs app icon (apps/desktop/resources/icons/icon.png in the app repo, resized). */
+export function AtomvsLogo({ size = 26 }: { size?: number }) {
+  return <Image src="/atomvs-icon.png" width={size} height={size} alt="" aria-hidden="true" priority />;
 }
 
 /** The official Flutter mark. */

@@ -14,7 +14,7 @@ export default function DownloadPage() {
   return (
     <div className="mx-auto max-w-content px-4 py-16 sm:px-6 sm:py-20">
       <div className="mb-12 flex flex-col gap-3">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Download Synkro</h1>
+        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Download Atomvs</h1>
         <p className="max-w-xl text-muted">Install, sign in, and open or create a project. Updates install automatically.</p>
       </div>
 
@@ -52,7 +52,7 @@ export default function DownloadPage() {
       </section>
 
       <p className="mt-12 text-sm text-muted">
-        New to Synkro? Start with the <Link href="/docs" className="text-accent underline underline-offset-4">docs</Link>.
+        New to Atomvs? Start with the <Link href="/docs" className="text-accent underline underline-offset-4">docs</Link>.
       </p>
     </div>
   );

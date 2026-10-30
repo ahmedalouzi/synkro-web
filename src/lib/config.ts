@@ -1,9 +1,13 @@
-/** Site-wide settings. Public values come from NEXT_PUBLIC_* env vars (see .env.example). */
+/** Site-wide settings. Public values come from NEXT_PUBLIC_* env vars (see .env.example), except the download URL. */
 export const site = {
-  name: 'Synkro',
+  name: 'Atomvs',
   tagline: 'The AI code editor for mobile apps',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-  downloadWindows: process.env.NEXT_PUBLIC_DOWNLOAD_URL_WINDOWS || 'https://github.com/ahmedalouzi/synkro/releases/latest',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.atomvs.com',
+  // The only place the installer link is set. The synkro repo is private, so its releases are not public yet;
+  // point this at the public releases repo once it exists.
+  downloadWindows: 'https://github.com/ahmedalouzi/synkro/releases/latest',
+  /** Where /beta-feedback sends answers (by email; there is no feedback endpoint yet). */
+  feedbackEmail: 'support@atomvs.com',
   checkoutUrl: process.env.NEXT_PUBLIC_CHECKOUT_URL || '',
   billingPortalUrl: process.env.NEXT_PUBLIC_BILLING_PORTAL_URL || '',
 };

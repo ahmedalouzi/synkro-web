@@ -10,7 +10,7 @@ export default function TermsPage() {
       <h1 className="mb-2 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Terms of Service</h1>
       <p className="text-sm text-[#71717a]">Last updated: [date]</p>
 
-      <p>These terms are an agreement between you and [Company name] (“Synkro”, “we”) for the Synkro desktop app, this website and the related services. By using Synkro you accept them.</p>
+      <p>These terms are an agreement between you and Atomvs (“we”) for the Atomvs desktop app, this website and the related services. By using Atomvs you accept them.</p>
 
       <h2>Your account</h2>
       <p>You need an account to use the AI features. Keep your password safe; you are responsible for activity on your account. You must be at least [13/16] years old.</p>
@@ -33,7 +33,7 @@ export default function TermsPage() {
       <p>AI suggestions can be wrong, insecure or incomplete. Review and test anything the agent writes before you rely on it or ship it. You are responsible for the code you publish.</p>
 
       <h2>Acceptable use</h2>
-      <p>Do not use Synkro to:</p>
+      <p>Do not use Atomvs to:</p>
       <ul>
         <li>break the law or infringe others’ rights;</li>
         <li>create malware or attack other systems;</li>
@@ -43,19 +43,19 @@ export default function TermsPage() {
       <p>We may suspend accounts that break these rules.</p>
 
       <h2>Availability and changes</h2>
-      <p>We work to keep Synkro available but do not guarantee it will be uninterrupted. We may change or discontinue features; for paid plans we will give reasonable notice of significant changes.</p>
+      <p>We work to keep Atomvs available but do not guarantee it will be uninterrupted. We may change or discontinue features; for paid plans we will give reasonable notice of significant changes.</p>
 
       <h2>Disclaimer and liability</h2>
-      <p>Synkro is provided “as is”. To the extent the law allows, we are not liable for indirect or consequential damages, lost profits or lost data, and our total liability is limited to the amount you paid us in the [12] months before the claim.</p>
+      <p>Atomvs is provided “as is”. To the extent the law allows, we are not liable for indirect or consequential damages, lost profits or lost data, and our total liability is limited to the amount you paid us in the [12] months before the claim.</p>
 
       <h2>Ending your use</h2>
-      <p>You can stop using Synkro and delete your account at any time. We may end these terms if you break them.</p>
+      <p>You can stop using Atomvs and delete your account at any time. We may end these terms if you break them.</p>
 
       <h2>Governing law</h2>
       <p>These terms are governed by the laws of [country/state].</p>
 
       <h2>Contact</h2>
-      <p>[Company name], [address] — [contact email].</p>
+      <p>Atomvs, [address] — [contact email].</p>
     </article>
   );
 }
