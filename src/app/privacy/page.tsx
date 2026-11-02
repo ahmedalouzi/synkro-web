@@ -15,17 +15,28 @@ export default function PrivacyPage() {
       <h2>What we collect</h2>
       <ul>
         <li><strong>Account</strong> — your email address and a hashed (never plain-text) password.</li>
-        <li><strong>Usage</strong> — how much AI usage and how many Tab completions your account uses, so we can apply your plan’s limits. We record token counts and cost, not the content of your requests.</li>
+        <li><strong>Usage</strong> — how much AI usage and how many Tab completions your account uses, so we can apply your plan’s limits. For each request we record the time, the model, token counts and estimated cost, not its content.</li>
         <li><strong>Chats</strong> — your conversations with the agent are stored so you can return to them in your chat history. You can delete a chat at any time.</li>
-        <li><strong>Payments</strong> — handled by our payment provider ([provider]). We receive your plan and subscription status, not your full card details.</li>
-        <li><strong>Crash reports</strong> — when the app crashes, a report with technical details (error, app version, operating system) may be sent to our error-tracking service ([Sentry]). Reports are scrubbed of API keys and tokens.</li>
-        <li><strong>Anonymous usage statistics</strong> — off by default. If you turn them on in Settings › Privacy, the app records which features you use, without code, file names or personal data.</li>
+        <li><strong>Payments</strong> — handled by our payment provider ([provider]). We store only the customer and subscription reference IDs and your subscription status. We never receive or store card numbers or bank details.</li>
+        <li><strong>Crash reports</strong> — only if you turn on usage statistics in Settings › Privacy (off by default). When the app crashes, a report with technical details (error, app version, operating system) is sent to our error-tracking service ([Sentry]). Before it leaves your computer, sign-in tokens, API keys and your local file paths are removed from it.</li>
+        <li><strong>Anonymous usage statistics</strong> — off by default. If you turn them on in Settings › Privacy, the app records which features you use, without code, file names or personal data, in a file on your computer that keeps at most 2,000 entries.</li>
+        <li><strong>Settings on your computer</strong> — your settings and recent projects are kept in a file on your computer. Your sign-in tokens and any API keys you enter there are encrypted with your operating system’s protection where it provides one (Windows and macOS do).</li>
       </ul>
 
       <h2>Your code and AI providers</h2>
       <p>When you use the agent, chat, Tab completions or Ctrl+K, the relevant parts of your code and your message are sent to our server and then to an AI model provider ([Google Gemini]) to generate the answer. We send only what the feature needs — for example the code around your cursor for a completion, or the files you attach with @.</p>
       <p>We do not sell your code, and we do not use it to train our own models. The AI provider processes it under its own terms for paid API use: [link to the provider’s data-use terms].</p>
-      <p>Your project files stay on your computer. They are not uploaded unless a feature you use sends them, as described above.</p>
+      <p>Your project files stay on your computer. They are not uploaded unless a feature you use sends them, as described above and under Cloud Build.</p>
+
+      <h2>Cloud Build</h2>
+      <p>When you start a Cloud Build to get an Android APK:</p>
+      <ul>
+        <li>The app uploads your project as an archive over HTTPS, without dependency and build folders such as <code>node_modules</code>, <code>.git</code> and Android build outputs.</li>
+        <li>Our server builds it inside an isolated container with restricted network access.</li>
+        <li>When the build ends — successfully, with an error or cancelled — the uploaded archive and the extracted source are deleted from the build server.</li>
+        <li>The finished APK is kept on our server for you to download, then deleted: after 24 hours on the Free plan and 7 days on paid plans.</li>
+        <li>APKs are signed with an upload key created for your project. The key is stored encrypted on our server so that every build of the project is signed the same way; you can download it with your account password.</li>
+      </ul>
 
       <h2>How we use information</h2>
       <ul>
@@ -45,7 +56,8 @@ export default function PrivacyPage() {
       <p>Depending on where you live, you may have the right to access, correct, export or delete your data, and to object to some processing. Contact us at [contact email].</p>
 
       <h2>Security</h2>
-      <p>Connections use HTTPS, passwords are hashed, and session tokens stored by the app are encrypted on your device. No system is perfectly secure, so please use a strong, unique password.</p>
+      <p>Connections use HTTPS and passwords are hashed. Accounts are kept apart from each other in our database, and Cloud Builds run in isolated containers. No system is perfectly secure, so please use a strong, unique password.</p>
+      <p>If you find a security problem, please report it to [security contact email].</p>
 
       <h2>Children</h2>
       <p>Atomvs is not intended for children under [13/16].</p>

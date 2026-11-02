@@ -3,9 +3,16 @@ export const site = {
   name: 'Atomvs',
   tagline: 'The AI code editor for mobile apps',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.atomvs.com',
-  // The only place the installer link is set. The synkro repo is private, so its releases are not public yet;
-  // point this at the public releases repo once it exists.
-  downloadWindows: 'https://github.com/ahmedalouzi/synkro/releases/latest',
+  /** The public repo the desktop app is released to (the source repo is private). */
+  releasesRepo: 'ahmedalouzi/atomvs-releases',
+  /**
+   * Fallbacks only: the Download buttons use the latest release's installer, looked up by
+   * latestWindowsDownload() (src/lib/latest-release.ts), and fall back to these when there is no published
+   * release yet or GitHub cannot be reached. The releases list, not /releases/latest, which is a 404 until the
+   * first release is published. Never the private source repo.
+   */
+  downloadWindows: 'https://github.com/ahmedalouzi/atomvs-releases/releases',
+  windowsInstallerName: 'Atomvs-Setup-0.1.0.exe',
   /** Where /beta-feedback sends answers (by email; there is no feedback endpoint yet). */
   feedbackEmail: 'support@atomvs.com',
   checkoutUrl: process.env.NEXT_PUBLIC_CHECKOUT_URL || '',

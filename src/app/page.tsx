@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import { latestWindowsDownload } from '@/lib/latest-release';
+
+// The Download links follow the latest release: re-checked at most every 10 minutes.
+export const revalidate = 600;
 import { FlutterLogo, ReactLogo } from '@/components/Logos';
 import { Screenshot } from '@/components/Screenshot';
 import { LiveDemo } from '@/components/home/LiveDemo';
@@ -17,7 +21,8 @@ const steps = [
 
 const headline = ['Build', 'mobile', 'apps', 'with', 'an', 'AI', 'that'];
 
-export default function Home() {
+export default async function Home() {
+  const windows = await latestWindowsDownload();
   return (
     <>
       <RevealOnScroll />
@@ -53,7 +58,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-3">
-            <a href={site.downloadWindows} className="btn-shine">
+            <a href={windows.url} className="btn-shine">
               <span>Download for Windows</span>
             </a>
             <Link href="/pricing" className="btn-ghost">See pricing →</Link>
@@ -124,7 +129,7 @@ export default function Home() {
             <h2 className="section-title text-center">Your next app starts<br />with one sentence.</h2>
             <p className="max-w-md text-center text-muted">Free to start. Upgrade when you build every day.</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <a href={site.downloadWindows} className="btn-shine"><span>Download for Windows</span></a>
+              <a href={windows.url} className="btn-shine"><span>Download for Windows</span></a>
               <Link href="/docs" className="btn-ghost">Read the docs</Link>
             </div>
           </div>
