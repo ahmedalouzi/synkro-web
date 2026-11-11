@@ -7,11 +7,17 @@ import { FlutterLogo, ReactLogo } from '@/components/Logos';
 import { Screenshot } from '@/components/Screenshot';
 import { LiveDemo } from '@/components/home/LiveDemo';
 import { Bento } from '@/components/home/Bento';
-import { RevealOnScroll, Spotlight } from '@/components/home/Effects';
+import { SpaceScene } from '@/components/home/SpaceScene';
+import { RingedEarth } from '@/components/home/RingedEarth';
+import { HomeMotion } from '@/components/home/HomeMotion';
+import { Marquee } from '@/components/home/Marquee';
 import { site } from '@/lib/config';
 import './home.css';
 
 const marquee = ['Flutter', 'React Native', 'Expo', 'Dart', 'TypeScript', 'Hot reload', 'Device frames', 'Git', 'Integrated terminal', 'VS Code shortcuts', 'Tab completions', 'Ctrl+K edits'];
+
+/** Where each step's node sits on the orbit curve (x, y as % of the 1200×260 drawing). */
+const nodes = [['16.67%', '51.2%'], ['50%', '27.9%'], ['83.33%', '51.2%']];
 
 const steps = [
   { n: '01', title: 'Describe it', text: 'Type what you want — a screen, a fix, a whole app. Attach files, errors or a screenshot with @.' },
@@ -19,119 +25,181 @@ const steps = [
   { n: '03', title: 'Ship it', text: 'Run it on any device frame, commit from the side bar, and build your Android APK.' },
 ];
 
-const headline = ['Build', 'mobile', 'apps', 'with', 'an', 'AI', 'that'];
-
 export default async function Home() {
   const windows = await latestWindowsDownload();
   return (
     <>
-      <RevealOnScroll />
+      <HomeMotion />
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <Spotlight className="hero">
-        <div className="hero-aurora" aria-hidden="true">
-          <span className="aurora a1" />
-          <span className="aurora a2" />
-          <span className="aurora a3" />
-        </div>
-        <div className="hero-grid" aria-hidden="true" />
-        <div className="hero-spot" aria-hidden="true" />
-        <div className="hero-noise" aria-hidden="true" />
+      {/* ── Hero: a 3D space scene, the headline bottom-left, the pitch bottom-right ── */}
+      <section className="space-hero" aria-labelledby="hero-title">
+        <div className="space-sky" aria-hidden="true" />
+        <SpaceScene />
+        <div className="space-fade" aria-hidden="true" />
 
-        <div className="relative mx-auto flex max-w-content flex-col items-center gap-7 px-4 pb-10 pt-20 text-center sm:px-6 sm:pt-28">
-          <div className="hero-pill">
-            <span className="hero-pill-dot" />
-            <FlutterLogo size={11} />
-            <ReactLogo size={14} />
-            <span>The AI editor for Flutter &amp; React Native</span>
+        <div className="hero-content">
+          <div className="hero-left">
+            <p className="hero-kicker">
+              <span className="hero-pill-dot" />
+              <FlutterLogo size={10} />
+              <span>Flutter</span>
+              <span className="hero-kicker-pill"><ReactLogo size={12} /> React Native</span>
+            </p>
+            <h1 id="hero-title" className="hero-display">
+              <span className="line"><span>Build mobile apps</span></span>
+              <span className="line"><span>with an AI that</span></span>
+              <span className="line"><span><em>sees</em> your phone.</span></span>
+            </h1>
           </div>
 
-          <h1 className="hero-title">
-            {headline.map((w, i) => (
-              <span key={i} className="word" style={{ animationDelay: `${i * 70}ms` }}>{w}&nbsp;</span>
-            ))}
-            <span className="word shimmer" style={{ animationDelay: `${headline.length * 70}ms` }}>sees your phone</span>
-          </h1>
-
-          <p className="hero-sub">
-            Describe a screen. Atomvs writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            <a href={windows.url} className="btn-shine">
-              <span>Download for Windows</span>
-            </a>
-            <Link href="/pricing" className="btn-ghost">See pricing →</Link>
-          </div>
-          <p className="text-xs text-faint">Free to start · No credit card · macOS coming soon</p>
-        </div>
-
-        <div className="relative mx-auto max-w-[1180px] px-3 pb-24 sm:px-6">
-          <LiveDemo />
-        </div>
-      </Spotlight>
-
-      {/* ── Marquee ──────────────────────────────────────────── */}
-      <div className="marquee" aria-hidden="true">
-        <div className="marquee-track">
-          {[...marquee, ...marquee].map((m, i) => (
-            <span key={i} className="marquee-item">{m}<i>✦</i></span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Features ─────────────────────────────────────────── */}
-      <section className="mx-auto max-w-content px-4 py-28 sm:px-6">
-        <div className="mb-12 flex flex-col gap-4" data-reveal>
-          <span className="eyebrow">One window</span>
-          <h2 className="section-title">Code, phone and AI —<br />side by side.</h2>
-          <p className="max-w-xl text-muted">No copying code between a chat tab and your editor. No guessing what changed.</p>
-        </div>
-        <Bento />
-      </section>
-
-      {/* ── How it works ─────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-y border-line bg-panel/60 py-28">
-        <div className="mx-auto max-w-content px-4 sm:px-6">
-          <div className="mb-14 flex flex-col gap-4" data-reveal>
-            <span className="eyebrow">How it works</span>
-            <h2 className="section-title">From a sentence to a running app.</h2>
-          </div>
-          <div className="steps">
-            <div className="steps-beam" aria-hidden="true"><span /></div>
-            {steps.map((s, i) => (
-              <div key={s.n} className="step" data-reveal style={{ transitionDelay: `${i * 120}ms` }}>
-                <span className="step-n">{s.n}</span>
-                <h3 className="font-display text-xl font-semibold">{s.title}</h3>
-                <p className="text-sm leading-relaxed text-muted">{s.text}</p>
+          <div className="hero-right">
+            <div className="hero-card glass">
+              <p className="hero-card-tag">
+                <span className="hero-pill-dot" />
+                Live phone preview
+              </p>
+              <p className="hero-card-lead">
+                Describe a screen. <em>Watch it</em> come alive.
+              </p>
+              <p className="hero-card-text">
+                Atomvs writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
+              </p>
+              <div className="hero-card-actions">
+                <a href={windows.url} className="btn-shine press">
+                  <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" className="relative z-[1] mr-2.5"><path fill="currentColor" d="M0 2.2 6.5 1.3v6.2H0zM7.3 1.2 16 0v7.5H7.3zM0 8.3h6.5v6.3L0 13.7zM7.3 8.3H16V16l-8.7-1.2z" /></svg>
+                  <span>Download for Windows</span>
+                </a>
+                <Link href="/pricing" className="btn-ghost press">Pricing</Link>
               </div>
-            ))}
+              <p className="hero-card-foot">Free to start · No credit card · macOS soon</p>
+            </div>
+            <a href="#demo" className="scroll-cue">
+              <span className="scroll-cue-ring" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M3 4.5 6 7.5l3-3" /></svg>
+              </span>
+              Scroll to begin
+            </a>
           </div>
         </div>
       </section>
 
-      {/* ── Real screenshot ──────────────────────────────────── */}
-      <section className="mx-auto grid max-w-content items-center gap-12 px-4 py-28 sm:px-6 lg:grid-cols-[1fr_1.35fr]">
-        <div className="flex flex-col gap-4" data-reveal>
-          <span className="eyebrow">New project</span>
-          <h2 className="section-title">Pick a framework.<br />Start building.</h2>
-          <p className="text-muted">Flutter or React Native, from a template or from a sentence. Managed mode runs the toolchain for you — nothing to install first.</p>
-        </div>
-        <div className="tilt" data-reveal>
-          <Screenshot src="/screens/new-project.png" alt="The New Project dialog in Atomvs with Flutter selected, toolchain options and templates" />
+      {/* ── 01 · The workspace, live ─────────────────────────── */}
+      <section id="demo" className="section demo-section scroll-mt-16">
+        <div className="horizon" aria-hidden="true"><span /></div>
+        <div className="wrap">
+          <div className="section-head" data-split>
+            <div>
+              <p className="kicker"><span className="idx">01</span><span className="dot" />Live workspace</p>
+              <h2 className="display section-title">Watch it <em>build,</em> line by line.</h2>
+            </div>
+            <p className="lead">The agent reads your project, plans, and writes the screen — and the phone preview fills in as the code lands. Every change is a diff you can keep or undo.</p>
+          </div>
+          <div className="hero-stage mx-auto max-w-[1180px]">
+            <LiveDemo />
+          </div>
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-content px-4 pb-10 sm:px-6">
-        <div className="cta" data-reveal>
-          <div className="cta-inner">
-            <h2 className="section-title text-center">Your next app starts<br />with one sentence.</h2>
-            <p className="max-w-md text-center text-muted">Free to start. Upgrade when you build every day.</p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <a href={windows.url} className="btn-shine"><span>Download for Windows</span></a>
-              <Link href="/docs" className="btn-ghost">Read the docs</Link>
+      {/* ── Ticker ───────────────────────────────────────────── */}
+      <Marquee items={marquee} />
+
+      {/* ── 02 · Features ────────────────────────────────────── */}
+      <section className="section">
+        <div className="wrap">
+          <div className="section-head" data-split>
+            <div>
+              <p className="kicker"><span className="idx">02</span><span className="dot" />One window</p>
+              <h2 className="display section-title">Code, phone and AI — <em>side by side.</em></h2>
             </div>
+            <p className="lead">No copying code between a chat tab and your editor. No guessing what changed. Everything you need to ship a mobile app, in one place.</p>
+          </div>
+          <Bento />
+        </div>
+      </section>
+
+      {/* ── 03 · How it works: a comet travels an orbit through the three steps ── */}
+      <section className="section orbit-section">
+        <div className="wrap">
+          <div className="section-head" data-split>
+            <div>
+              <p className="kicker"><span className="idx">03</span><span className="dot" />How it works</p>
+              <h2 className="display section-title">From a sentence to a <em>running app.</em></h2>
+            </div>
+            <p className="lead">Three steps, one window, no setup. Describe it, watch it build, ship it.</p>
+          </div>
+
+          <div className="orbit">
+            <div className="orbit-canvas" aria-hidden="true">
+              <svg viewBox="0 0 1200 260" className="orbit-svg">
+                <defs>
+                  <linearGradient id="orbit-grad" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0" stopColor="#7c83ff" />
+                    <stop offset=".5" stopColor="#47c5fb" />
+                    <stop offset="1" stopColor="#f0abfc" />
+                  </linearGradient>
+                  <radialGradient id="comet-grad">
+                    <stop offset="0" stopColor="#ffffff" />
+                    <stop offset=".35" stopColor="#c7c9ff" stopOpacity=".85" />
+                    <stop offset="1" stopColor="#7c83ff" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                <path className="orbit-track" d="M 0 230 C 300 20, 900 20, 1200 230" />
+                <path id="orbit-path" className="orbit-line" d="M 0 230 C 300 20, 900 20, 1200 230" />
+                <circle className="orbit-comet" r="22" cx="0" cy="230" fill="url(#comet-grad)" />
+              </svg>
+              {nodes.map((n, i) => (
+                <span key={i} className="orbit-node" data-node={i} style={{ left: n[0], top: n[1] }} />
+              ))}
+            </div>
+            <div className="orbit-steps">
+              {steps.map((s, i) => (
+                <div key={s.n} className="step" data-step={i} data-reveal style={{ transitionDelay: `${i * 120}ms` }}>
+                  <span className="step-n">{s.n}</span>
+                  <h3 className="step-title">{s.title}</h3>
+                  <p className="step-text">{s.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 04 · New project ─────────────────────────────────── */}
+      <section className="section">
+        <div className="wrap grid items-center gap-14 lg:grid-cols-[1fr_1.3fr]">
+          <div className="flex flex-col gap-6" data-split>
+            <p className="kicker"><span className="idx">04</span><span className="dot" />New project</p>
+            <h2 className="display display-md section-title">Pick a framework. <em>Start building.</em></h2>
+            <p className="lead">Flutter or React Native, from a template or from a sentence. Managed mode runs the toolchain for you — nothing to install first.</p>
+            <ul className="spec-list" data-split-rest>
+              <li><span>Frameworks</span>Flutter · React Native · Expo</li>
+              <li><span>Toolchain</span>Managed, or your local CLI</li>
+              <li><span>Start from</span>A template, a repo, or a sentence</li>
+            </ul>
+          </div>
+          <div className="shot-stage">
+            <div className="tilt" data-reveal>
+              <Screenshot src="/screens/new-project.png" alt="The New Project dialog in Atomvs with Flutter selected, toolchain options and templates" />
+            </div>
+            <span className="chip glass chip-a" data-speed="-70"><i className="chip-dot" />Flutter 3.24 ready</span>
+            <span className="chip glass chip-b" data-speed="50">Hot reload · 412 ms</span>
+            <span className="chip glass chip-c" data-speed="-35">Managed toolchain ✓</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA: Earth wearing Saturn's ring rises below the copy ── */}
+      <section className="eclipse-section">
+        <div className="planet-stage" aria-hidden="true">
+          <RingedEarth />
+        </div>
+        <div className="wrap eclipse-content" data-split>
+          <p className="kicker"><span className="dot" />Free to start</p>
+          <h2 className="display section-title">Your next app starts with <em>one sentence.</em></h2>
+          <p className="lead">Free to start. Upgrade when you build every day.</p>
+          <div className="flex flex-wrap justify-center gap-3" data-split-rest>
+            <a href={windows.url} className="btn-shine press"><span>Download for Windows</span></a>
+            <Link href="/docs" className="btn-ghost press">Read the docs</Link>
           </div>
         </div>
       </section>

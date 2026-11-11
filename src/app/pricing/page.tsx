@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { PageHero } from '@/components/PageHero';
 import { PlanCards } from '@/components/PlanCards';
 
 export const metadata: Metadata = { title: 'Pricing' };
@@ -28,23 +29,20 @@ const faq = [
 
 export default function PricingPage() {
   return (
-    <div className="mx-auto max-w-content px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mb-12 flex flex-col items-center gap-3 text-center">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Simple pricing</h1>
-        <p className="max-w-xl text-muted">Start free. Upgrade when you build every day.</p>
-      </div>
-      <div className="mx-auto max-w-4xl">
+    <div className="wrap pb-24">
+      <PageHero kicker="Pricing" title={<>Simple <em>pricing.</em></>} lead="Start free. Upgrade when you build every day." />
+      <div className="max-w-5xl">
         <PlanCards />
       </div>
 
-      <section className="mx-auto mt-20 max-w-3xl">
-        <h2 className="mb-6 font-display text-2xl font-semibold">Questions</h2>
-        <div className="divide-y divide-line rounded-2xl border border-line">
+      <section className="mt-28 max-w-3xl" data-reveal>
+        <h2 className="h-section mb-8">Good <em>questions.</em></h2>
+        <div className="glass divide-y divide-line rounded-2xl">
           {faq.map((item) => (
             <details key={item.q} className="group p-5 [&_summary::-webkit-details-marker]:hidden">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
                 {item.q}
-                <span className="text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                <span className="text-muted transition-transform duration-300 group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
             </details>

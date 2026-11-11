@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import { DraftNotice } from '@/components/DraftNotice';
+import { PageHero } from '@/components/PageHero';
 
 export const metadata: Metadata = { title: 'Privacy Policy' };
 
 export default function PrivacyPage() {
   return (
-    <article className="prose-synkro mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div className="wrap pb-24">
+      <PageHero kicker="Legal" title={<>Privacy <em>Policy</em></>} lead="Last updated: [date]" />
+      <article className="prose-synkro max-w-3xl">
       <DraftNotice />
-      <h1 className="mb-2 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Privacy Policy</h1>
-      <p className="text-sm text-[#71717a]">Last updated: [date]</p>
 
       <p>This policy explains what Atomvs (“we”) collects when you use the Atomvs desktop app and this website, why, and the choices you have.</p>
 
@@ -68,5 +69,6 @@ export default function PrivacyPage() {
       <h2>Contact</h2>
       <p>Atomvs, [address], [country] — [contact email].</p>
     </article>
+    </div>
   );
 }

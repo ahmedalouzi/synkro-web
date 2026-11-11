@@ -13,12 +13,12 @@ function Check() {
 export function PlanCards() {
   return (
     <div className="grid gap-5 md:grid-cols-2">
-      {plans.map((plan) => {
+      {plans.map((plan, i) => {
         const pro = plan.id === 'pro';
         return (
+          <div key={plan.id} data-reveal style={{ transitionDelay: `${i * 90}ms` }}>
           <article
-            key={plan.id}
-            className={`flex flex-col gap-6 rounded-2xl border p-7 ${pro ? 'border-accent/50 bg-[radial-gradient(120%_120%_at_100%_0%,rgba(124,131,255,0.14),transparent_55%)] bg-elevated' : 'border-line-strong bg-panel'}`}
+            className={`glass lift flex h-full flex-col gap-6 rounded-2xl p-7 ${pro ? '!border-accent/50 bg-[radial-gradient(120%_120%_at_100%_0%,rgba(124,131,255,0.2),transparent_55%)]' : ''}`}
           >
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -41,11 +41,11 @@ export function PlanCards() {
             </ul>
             <div className="mt-auto">
               {!pro ? (
-                <Link href="/download" className="block rounded-lg border border-line-strong px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-hover">
+                <Link href="/download" className="press block rounded-lg border border-line-strong px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-hover">
                   Download for free
                 </Link>
               ) : site.checkoutUrl ? (
-                <a href={site.checkoutUrl} className="block rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-semibold text-base transition-opacity hover:opacity-90">
+                <a href={site.checkoutUrl} className="press block rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-semibold text-base transition-opacity hover:opacity-90">
                   Upgrade to Pro
                 </a>
               ) : (
@@ -58,6 +58,7 @@ export function PlanCards() {
               )}
             </div>
           </article>
+          </div>
         );
       })}
     </div>

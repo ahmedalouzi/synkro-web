@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import { DraftNotice } from '@/components/DraftNotice';
+import { PageHero } from '@/components/PageHero';
 
 export const metadata: Metadata = { title: 'Terms of Service' };
 
 export default function TermsPage() {
   return (
-    <article className="prose-synkro mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div className="wrap pb-24">
+      <PageHero kicker="Legal" title={<>Terms of <em>Service</em></>} lead="Last updated: [date]" />
+      <article className="prose-synkro max-w-3xl">
       <DraftNotice />
-      <h1 className="mb-2 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Terms of Service</h1>
-      <p className="text-sm text-[#71717a]">Last updated: [date]</p>
 
       <p>These terms are an agreement between you and Atomvs (“we”) for the Atomvs desktop app, this website and the related services. By using Atomvs you accept them.</p>
 
@@ -59,5 +60,6 @@ export default function TermsPage() {
       <h2>Contact</h2>
       <p>Atomvs, [address] — [contact email].</p>
     </article>
+    </div>
   );
 }
