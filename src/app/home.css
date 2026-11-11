@@ -69,7 +69,7 @@
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-.hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; width: min(27rem, 100%); animation: fade-up 1s 1.4s both; }
+.hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; width: min(clamp(27rem, 31vw, 35rem), 100%); /* wider on big screens, never into the headline */ animation: fade-up 1s 1.4s both; }
 /* Glass card for the pitch: a darker frost so text stays crisp over stars and fog. */
 .hero-card {
   width: 100%; display: flex; flex-direction: column; gap: 14px; padding: 24px 24px 20px; border-radius: 26px;

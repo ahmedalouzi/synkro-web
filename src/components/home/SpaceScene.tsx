@@ -468,7 +468,7 @@ export function SpaceScene() {
         moon.position.set(narrow ? -6 : -46, narrow ? 27 : 26, narrow ? -80 : -90);
         jupiter.position.set(narrow ? -14 : -41, narrow ? 52 : 31, narrow ? -200 : -150);
         mars.position.set(narrow ? -10 : 24, narrow ? 14 : 12, -70);
-        uranus.position.set(-60, -2, -110);
+        uranus.position.set(-60, 3, -110); // left, between Saturn's ring and the headline's kicker
         uranus.visible = !narrow; // no room on phones
         // Shade from the sun's direction but from in front of the planets, so they read three-quarter
         // lit (as in space photography) instead of showing us their night side.
