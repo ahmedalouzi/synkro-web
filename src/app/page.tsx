@@ -35,6 +35,8 @@ export default async function Home() {
       {/* ── Hero: a 3D space scene, the headline bottom-left, the pitch bottom-right ── */}
       <section className="space-hero" aria-labelledby="hero-title">
         <div className="space-sky" aria-hidden="true" />
+        {/* A still of the 3D scene: shown on weak devices, without WebGL, or when the scene is slow to start. */}
+        <div className="space-poster" aria-hidden="true" />
         <SpaceScene />
         <div className="space-fade" aria-hidden="true" />
 

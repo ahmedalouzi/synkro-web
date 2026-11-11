@@ -149,7 +149,9 @@ export function RingedEarth() {
       resize();
 
       const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      let reduced = reduceQuery.matches;
+      // Weak devices (html.lowfx) get one still frame instead of a running scene.
+      const lowfx = () => document.documentElement.classList.contains('lowfx');
+      let reduced = reduceQuery.matches || lowfx();
       let time = 0;
       let last = performance.now();
       let raf = 0;
@@ -193,7 +195,7 @@ export function RingedEarth() {
         pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
       };
       const onReduce = () => {
-        reduced = reduceQuery.matches;
+        reduced = reduceQuery.matches || lowfx();
         start();
       };
       const io = new IntersectionObserver(([entry]) => {

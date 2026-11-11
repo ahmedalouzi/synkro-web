@@ -57,8 +57,18 @@ export function SpaceScene() {
   useEffect(() => {
     const el = host.current;
     if (!el) return;
+    const html = document.documentElement;
+    const hero = el.closest('.space-hero');
+    // ?poster=hero renders the composed still frame alone, for capturing public/posters/*.
+    const posterMode = new URLSearchParams(window.location.search).get('poster') === 'hero';
+    if (posterMode) html.classList.add('poster-capture');
+    // Weak devices (html.lowfx, set before first paint) keep the static poster instead.
+    if (!posterMode && html.classList.contains('lowfx')) return;
     const probe = document.createElement('canvas');
-    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return;
+    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) {
+      html.classList.add('lowfx');
+      return;
+    }
 
     let disposed = false;
     let teardown = () => {};
@@ -112,8 +122,13 @@ export function SpaceScene() {
       });
 
       // ── Renderer, scene, camera ───────────────────────────────────────────
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth > 1600 ? 1.25 : 1.5));
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance',
+        preserveDrawingBuffer: posterMode,
+      });
+      renderer.setPixelRatio(posterMode ? window.devicePixelRatio : Math.min(window.devicePixelRatio, window.innerWidth > 1600 ? 1.25 : 1.5));
       renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.15;
@@ -455,8 +470,9 @@ export function SpaceScene() {
 
       // ── Motion ────────────────────────────────────────────────────────────
       const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      let reduced = reduceQuery.matches;
+      let reduced = reduceQuery.matches || posterMode;
       let time = 0;
+      let stopped = false;
       let last = performance.now();
       const pointer = { x: 0, y: 0 };
       const lean = { x: 0, y: 0 };
@@ -546,13 +562,51 @@ export function SpaceScene() {
       };
 
       const STILL_T = 7; // a composed frame after the entrance has settled
+
+      // Speed guard: measure ~90 frames (after 30 warm-up frames). Below ~24 fps, first drop the
+      // pixel ratio, the glass transmission pass and half the fog; if it is still too slow, stop
+      // rendering, show the static poster and free the GPU.
+      const perf = { frames: 0, sum: 0, level: 0 };
+      const degrade = () => {
+        perf.level += 1;
+        if (perf.level === 1) {
+          renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1) * 0.75);
+          resize();
+          const glassMat = nucleus.material as InstanceType<typeof THREE.MeshPhysicalMaterial>;
+          glassMat.transmission = 0;
+          glassMat.transparent = true;
+          glassMat.opacity = 0.9;
+          glassMat.needsUpdate = true;
+          puffs.forEach((p, i) => (p.s.visible = i % 2 === 0));
+          return;
+        }
+        stopped = true;
+        cancelAnimationFrame(raf);
+        raf = 0;
+        hero?.classList.remove('is-live');
+        hero?.classList.add('poster-on');
+        html.classList.add('lowfx');
+        window.setTimeout(() => teardown(), 900);
+      };
+
       const loop = (now: number) => {
         raf = 0;
-        if (disposed || reduced || !onScreen || document.hidden) return;
-        time += Math.min(now - last, 50) / 1000;
+        if (disposed || stopped || reduced || !onScreen || document.hidden) return;
+        const frameMs = now - last;
+        time += Math.min(frameMs, 50) / 1000;
         last = now;
         draw(time, true);
-        raf = requestAnimationFrame(loop);
+        if (perf.level < 2) {
+          perf.frames += 1;
+          if (perf.frames > 30) perf.sum += frameMs;
+          if (perf.frames === 120) {
+            const avg = perf.sum / 90;
+            perf.frames = 0;
+            perf.sum = 0;
+            if (avg > 42) degrade();
+          }
+        }
+        if (!stopped) raf = requestAnimationFrame(loop);
       };
       const start = () => {
         if (reduced) {
@@ -560,8 +614,10 @@ export function SpaceScene() {
           draw(STILL_T, false);
           return;
         }
-        if (!raf && onScreen && !document.hidden) {
+        if (!raf && !stopped && onScreen && !document.hidden) {
           last = performance.now();
+          perf.frames = 0;
+          perf.sum = 0;
           raf = requestAnimationFrame(loop);
         }
       };
@@ -594,6 +650,12 @@ export function SpaceScene() {
         /* older drivers: shaders compile on the first render instead */
       }
       if (!disposed) {
+        if (!posterMode) {
+          // The CSS poster fades in ~3 s after load on slow starts; if we are that late, pick up
+          // from the poster's exact frame instead of replaying the fly-in, then cross-fade.
+          if (performance.now() > 2800) time = STILL_T;
+          hero?.classList.add('is-live');
+        }
         start();
         el.classList.add('is-ready');
       }
@@ -601,7 +663,7 @@ export function SpaceScene() {
       // Progressive upgrade: swap each body to its real map (public/textures/planets) once it has
       // loaded. The procedural shaders above stay as the instant first frame and as the fallback
       // for any map that is missing.
-      void (async () => {
+      const upgraded = (async () => {
         const loader = new THREE.TextureLoader();
         const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
         const tryLoad = (f: string) =>
@@ -677,8 +739,17 @@ export function SpaceScene() {
         }
         if (reduced) draw(STILL_T, false);
       })();
+      if (posterMode) {
+        void upgraded.then(() => {
+          draw(STILL_T, false);
+          html.dataset.posterReady = '1';
+        });
+      }
 
+      let tornDown = false;
       teardown = () => {
+        if (tornDown) return;
+        tornDown = true;
         cancelAnimationFrame(raf);
         io.disconnect();
         ro.disconnect();

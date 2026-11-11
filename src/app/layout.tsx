@@ -17,9 +17,29 @@ export const metadata: Metadata = {
   openGraph: { title: site.name, description: site.tagline, images: ['/screens/workspace.png'] },
 };
 
+/**
+ * Runs before first paint: marks weak devices with html.lowfx so they get the light experience
+ * (static poster instead of the 3D scenes, no backdrop blur). Weak = software WebGL or a GPU the
+ * browser flags as slow (failIfMajorPerformanceCaveat), <= 2 GB memory, <= 2 cores, or Save-Data.
+ * `?lowfx=1` forces it for testing; `?poster=...` (poster capture) skips it.
+ */
+const LOWFX_SCRIPT = `(function(){try{var d=document.documentElement,n=navigator,q=location.search,w=/[?&]lowfx=1/.test(q);
+if(/[?&]poster=/.test(q))return;
+if(n.connection&&n.connection.saveData)w=true;
+if(n.deviceMemory&&n.deviceMemory<=2)w=true;
+if(n.hardwareConcurrency&&n.hardwareConcurrency<=2)w=true;
+if(!w){var c=document.createElement('canvas'),o={failIfMajorPerformanceCaveat:true},g=c.getContext('webgl2',o)||c.getContext('webgl',o);
+if(!g){w=true}else{var e=g.getExtension('WEBGL_debug_renderer_info'),r=e?String(g.getParameter(e.UNMASKED_RENDERER_WEBGL)):'';
+if(/swiftshader|llvmpipe|softpipe|software|basic render/i.test(r))w=true;var l=g.getExtension('WEBGL_lose_context');if(l)l.loseContext();}}
+if(w)d.classList.add('lowfx');}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} ${serif.variable}`}>
+    // suppressHydrationWarning: the inline script may add "lowfx" to <html> before React hydrates.
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} ${serif.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: LOWFX_SCRIPT }} />
+      </head>
       <body className="min-h-screen font-sans text-ink">
         <div className="ambient" aria-hidden="true"><span className="b1" /><span className="b2" /><span className="b3" /></div>
         <Header />

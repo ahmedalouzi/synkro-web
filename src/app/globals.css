@@ -237,6 +237,17 @@ details[open]::details-content { block-size: auto; }
   @keyframes mark-rise { from { transform: translateY(70%); opacity: 0; } }
 }
 
+/* ── Light mode for weak devices (html.lowfx, set before first paint in layout.tsx) ──
+   Backdrop blur is the heaviest effect on a weak GPU: replace every frosted surface with a solid
+   one of the same tint. The 3D scenes show their static posters instead (home.css). */
+.lowfx *, .lowfx *::before, .lowfx *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.lowfx .glass { background: rgba(17,17,26,.94); }
+.lowfx .glass::after { display: none; }
+.lowfx .site-header[data-scrolled] { background: rgba(9,9,11,.95); }
+.lowfx .bento-inner { background: #101018; }
+.lowfx .marquee { background: #0b0b0e; }
+.lowfx .btn-ghost { background: rgba(255,255,255,.08); }
+
 /* Reduced motion, tiered (not a kill switch):
    Tier 1 (3D, parallax, large movement, loops) is removed; Tier 2 (small rises) becomes a
    short fade; Tier 3 (colour, opacity, focus, progress) is kept. 0.01ms, not 0s, so

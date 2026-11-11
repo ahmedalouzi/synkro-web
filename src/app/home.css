@@ -22,6 +22,20 @@
     radial-gradient(1.6px 1.6px at 61px 333px, rgba(255,255,255,.85), transparent 60%) 0 0 / 540px 490px,
     #000;
 }
+/* Poster: a captured still of the scene (public/posters). It fades in by itself after ~3 s, so
+   a slow or failing start never leaves the hero black; a running scene (.is-live) hides it. */
+.space-poster {
+  position: absolute; inset: 0; z-index: -2; pointer-events: none; opacity: 0;
+  background: url(/posters/hero-desktop.webp) center bottom / cover no-repeat;
+  animation: poster-in .8s ease 3s forwards;
+}
+@media (max-aspect-ratio: 9/10) { .space-poster { background-image: url(/posters/hero-mobile.webp); } }
+@keyframes poster-in { to { opacity: 1; } }
+.space-hero.is-live .space-poster { animation: none; opacity: 0; transition: opacity .9s ease; }
+.space-hero.poster-on .space-poster, .lowfx .space-poster { animation: none; opacity: 1; transition: opacity .9s ease; }
+.lowfx .space-scene { display: none; }
+/* Poster capture (?poster=hero): the scene alone, nothing on top. */
+.poster-capture .site-header, .poster-capture .hero-content, .poster-capture .space-fade, .poster-capture .space-poster { display: none !important; }
 .space-scene { position: absolute; inset: 0; z-index: -2; opacity: 0; transition: opacity .5s ease; }
 .space-scene.is-ready { opacity: 1; }
 .space-fade { position: absolute; inset: auto 0 0 0; height: 20%; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent, #000 96%); }
