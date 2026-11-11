@@ -254,7 +254,8 @@ details[open]::details-content { block-size: auto; }
    animationend/transitionend still fire. [data-motion-keep] opts out of the safety net. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
-  *:not([data-motion-keep]), *::before, *::after {
+  /* The small feature demos in .mini (typing, key presses) are not vestibular triggers: they keep playing. */
+  *:not([data-motion-keep]):not(.mini *), *:not(.mini *)::before, *:not(.mini *)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     animation-delay: 0s !important;

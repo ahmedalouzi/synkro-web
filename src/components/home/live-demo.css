@@ -274,7 +274,8 @@
 /* ── 3D callouts ── */
 .ld-float {
   position: absolute; z-index: 5; display: none; align-items: center; gap: 7px; padding: 8px 13px; border-radius: 11px;
-  border: 1px solid rgba(255,255,255,.14); background: rgba(20,20,26,.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  /* No backdrop-filter: inside the 3D-tilted demo (translateZ) Safari renders it black. */
+  border: 1px solid rgba(255,255,255,.14); background: rgba(20,20,26,.94);
   color: #e4e4e7; font-size: 12.5px; font-weight: 500; white-space: nowrap;
   box-shadow: 0 20px 40px -12px rgba(0,0,0,.8), 0 0 0 1px rgba(124,131,255,.12);
   opacity: 0; transform: translateZ(70px) translateY(14px) scale(.9); transition: opacity .5s, transform .7s cubic-bezier(.2,.8,.2,1.3);

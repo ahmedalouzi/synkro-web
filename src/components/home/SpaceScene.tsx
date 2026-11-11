@@ -29,7 +29,10 @@ import { loadThree } from './threeLoader';
  *
  * - three.js loads on demand, after first paint; the canvas fades in once ready.
  * - Renders only while on screen and the tab is visible; pixel ratio capped at 1.5.
- * - prefers-reduced-motion: one composed still frame, no fly-in, twinkle or drift.
+ * - prefers-reduced-motion: gentle motion only (orbits, twinkle, slow spin); no fly-in, camera
+ *   movement or meteors.
+ * - Weak devices (html.lowfx) and failures show the static poster; a speed guard degrades, then
+ *   falls back to it. `?fx=full` disables the guard for testing.
  * - No WebGL: nothing renders; the CSS sky gradient behind still reads as space.
  */
 
@@ -470,7 +473,11 @@ export function SpaceScene() {
 
       // ── Motion ────────────────────────────────────────────────────────────
       const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      let reduced = reduceQuery.matches || posterMode;
+      // posterMode draws one still frame. Reduced motion keeps the scene alive but gentle: no
+      // fly-in, no camera movement on scroll or pointer, no meteors (vestibular triggers removed).
+      const reduced = posterMode;
+      let gentle = reduceQuery.matches;
+      const forceFull = new URLSearchParams(window.location.search).get('fx') === 'full';
       let time = 0;
       let stopped = false;
       let last = performance.now();
@@ -482,8 +489,8 @@ export function SpaceScene() {
 
       const draw = (t: number, live: boolean) => {
         const dt = live ? 1 / 60 : 0;
-        const scroll = live ? Math.min(1, window.scrollY / window.innerHeight) : 0;
-        if (live) {
+        const scroll = live && !gentle ? Math.min(1, window.scrollY / window.innerHeight) : 0;
+        if (live && !gentle) {
           lean.x += (pointer.x - lean.x) * 0.04;
           lean.y += (pointer.y - lean.y) * 0.04;
         }
@@ -539,7 +546,7 @@ export function SpaceScene() {
         streak.material.opacity = 0.26 * easeOut((t - 1) / 2);
 
         // Meteors.
-        if (live) {
+        if (live && !gentle) {
           if (t > nextMeteor) {
             launch(t);
             nextMeteor = t + 0.9 + rand() * 2.6;
@@ -563,10 +570,11 @@ export function SpaceScene() {
 
       const STILL_T = 7; // a composed frame after the entrance has settled
 
-      // Speed guard: measure ~90 frames (after 30 warm-up frames). Below ~24 fps, first drop the
-      // pixel ratio, the glass transmission pass and half the fog; if it is still too slow, stop
-      // rendering, show the static poster and free the GPU.
-      const perf = { frames: 0, sum: 0, level: 0 };
+      // Speed guard. Ignore the first 3 s after (re)starting (shader compile, big texture uploads),
+      // then judge windows of 90 frames by their MEDIAN frame time, so one-off spikes never count.
+      // Median > 45 ms (< ~22 fps): drop the pixel ratio, the glass transmission pass and half the
+      // fog. Then two windows in a row at > 66 ms (< 15 fps): stop, show the poster, free the GPU.
+      const perf = { started: 0, samples: [] as number[], level: 0, strikes: 0 };
       const degrade = () => {
         perf.level += 1;
         if (perf.level === 1) {
@@ -596,14 +604,17 @@ export function SpaceScene() {
         time += Math.min(frameMs, 50) / 1000;
         last = now;
         draw(time, true);
-        if (perf.level < 2) {
-          perf.frames += 1;
-          if (perf.frames > 30) perf.sum += frameMs;
-          if (perf.frames === 120) {
-            const avg = perf.sum / 90;
-            perf.frames = 0;
-            perf.sum = 0;
-            if (avg > 42) degrade();
+        if (!forceFull && perf.level < 2 && now - perf.started > 3000) {
+          perf.samples.push(frameMs);
+          if (perf.samples.length === 90) {
+            const sorted = perf.samples.sort((a, b) => a - b);
+            const median = sorted[45];
+            perf.samples = [];
+            if (perf.level === 0 && median > 45) degrade();
+            else if (perf.level === 1) {
+              perf.strikes = median > 66 ? perf.strikes + 1 : 0;
+              if (perf.strikes >= 2) degrade();
+            }
           }
         }
         if (!stopped) raf = requestAnimationFrame(loop);
@@ -616,8 +627,9 @@ export function SpaceScene() {
         }
         if (!raf && !stopped && onScreen && !document.hidden) {
           last = performance.now();
-          perf.frames = 0;
-          perf.sum = 0;
+          perf.started = last;
+          perf.samples = [];
+          if (gentle && time < STILL_T) time = STILL_T; // reduced motion: skip the fly-in
           raf = requestAnimationFrame(loop);
         }
       };
@@ -627,7 +639,7 @@ export function SpaceScene() {
         pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
       };
       const onReduce = () => {
-        reduced = reduceQuery.matches;
+        gentle = reduceQuery.matches;
         start();
       };
       const io = new IntersectionObserver(([entry]) => {

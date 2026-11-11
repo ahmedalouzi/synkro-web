@@ -177,8 +177,9 @@
 .glow-card:hover::before { opacity: 1; }
 .bento-inner {
   position: relative; height: 100%; display: flex; flex-direction: column; gap: 22px; padding: 26px; border-radius: 21px;
-  background: radial-gradient(500px circle at var(--x, 50%) var(--y, 0%), rgba(124,131,255,.10), transparent 50%), rgba(15,15,22,.55);
-  -webkit-backdrop-filter: blur(18px) saturate(165%); backdrop-filter: blur(18px) saturate(165%);
+  /* No backdrop-filter here: inside the 3D-tilted .glow-card, Safari renders blur as a black area
+     and drops neighbouring cards. Over the black starfield a near-solid fill looks the same. */
+  background: radial-gradient(500px circle at var(--x, 50%) var(--y, 0%), rgba(124,131,255,.10), transparent 50%), rgba(15,15,22,.9);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
 }
 .glow-card { background: rgba(255,255,255,.10); }
@@ -311,8 +312,6 @@
 /* Reduced motion, tiered (see globals.css): loops settle on a meaningful frame, 3D and
    large movement are removed, colour/opacity state changes stay. */
 @media (prefers-reduced-motion: reduce) {
-  .mini-del, .mini-add, .mini-steps div, .mini-palette { opacity: 1 !important; transform: none !important; }
-  .mini-typing { width: 13ch !important; }
   .tilt > figure, .tilt:hover > figure, .glow-card { transform: none; }   /* Tier 1: 3D */
   .hero-pill-dot::after, .btn-shine::after { display: none; }
   .orbit-node { border-color: #fff; }

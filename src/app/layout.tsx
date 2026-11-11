@@ -20,14 +20,14 @@ export const metadata: Metadata = {
 /**
  * Runs before first paint: marks weak devices with html.lowfx so they get the light experience
  * (static poster instead of the 3D scenes, no backdrop blur). Weak = software WebGL or a GPU the
- * browser flags as slow (failIfMajorPerformanceCaveat), <= 2 GB memory, <= 2 cores, or Save-Data.
- * `?lowfx=1` forces it for testing; `?poster=...` (poster capture) skips it.
+ * browser flags as slow (failIfMajorPerformanceCaveat), <= 2 GB memory (Chromium only), or Save-Data.
+ * Core counts are not used: Safari reports them unreliably. `?lowfx=1` forces light mode,
+ * `?fx=full` and `?poster=...` (poster capture) skip the check.
  */
 const LOWFX_SCRIPT = `(function(){try{var d=document.documentElement,n=navigator,q=location.search,w=/[?&]lowfx=1/.test(q);
-if(/[?&]poster=/.test(q))return;
+if(/[?&](poster=|fx=full)/.test(q))return;
 if(n.connection&&n.connection.saveData)w=true;
 if(n.deviceMemory&&n.deviceMemory<=2)w=true;
-if(n.hardwareConcurrency&&n.hardwareConcurrency<=2)w=true;
 if(!w){var c=document.createElement('canvas'),o={failIfMajorPerformanceCaveat:true},g=c.getContext('webgl2',o)||c.getContext('webgl',o);
 if(!g){w=true}else{var e=g.getExtension('WEBGL_debug_renderer_info'),r=e?String(g.getParameter(e.UNMASKED_RENDERER_WEBGL)):'';
 if(/swiftshader|llvmpipe|softpipe|software|basic render/i.test(r))w=true;var l=g.getExtension('WEBGL_lose_context');if(l)l.loseContext();}}
