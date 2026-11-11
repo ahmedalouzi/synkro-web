@@ -11,6 +11,7 @@ import { SpaceScene } from '@/components/home/SpaceScene';
 import { RingedEarth } from '@/components/home/RingedEarth';
 import { HomeMotion } from '@/components/home/HomeMotion';
 import { Marquee } from '@/components/home/Marquee';
+import { PlatformPicker } from '@/components/home/PlatformPicker';
 import { site } from '@/lib/config';
 import './home.css';
 
@@ -64,14 +65,7 @@ export default async function Home() {
               <p className="hero-card-text">
                 Atomvs writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
               </p>
-              <div className="hero-card-actions">
-                <a href={windows.url} className="btn-shine press">
-                  <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" className="relative z-[1] mr-2.5"><path fill="currentColor" d="M0 2.2 6.5 1.3v6.2H0zM7.3 1.2 16 0v7.5H7.3zM0 8.3h6.5v6.3L0 13.7zM7.3 8.3H16V16l-8.7-1.2z" /></svg>
-                  <span>Download for Windows</span>
-                </a>
-                <Link href="/pricing" className="btn-ghost press">Pricing</Link>
-              </div>
-              <p className="hero-card-foot">Free to start · No credit card · macOS soon</p>
+              <PlatformPicker windowsUrl={windows.url} />
             </div>
             <a href="#demo" className="scroll-cue">
               <span className="scroll-cue-ring" aria-hidden="true">

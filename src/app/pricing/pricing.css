@@ -1,0 +1,181 @@
+/* ── Pricing ─────────────────────────────────────────────────────────────────
+   Three plans as three worlds: Free wears the Moon, Pro wears Saturn, Pro+ wears Jupiter.
+   Only transform/opacity animate (plus the tiny planet maps scrolling); everything has a
+   still state under prefers-reduced-motion (see globals.css). */
+
+.pricing-page { position: relative; overflow: hidden; }
+
+/* Faint orbit lines sweeping behind the page. */
+.pricing-orbits { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
+.pricing-orbits span {
+  position: absolute; left: 50%; top: 520px; border-radius: 50%; border: 1px solid rgba(158,163,255,.09);
+  translate: -50% -50%; transform: rotateX(72deg); animation: orbit-turn 60s linear infinite;
+}
+.pricing-orbits span:nth-child(1) { width: 900px; height: 900px; }
+.pricing-orbits span:nth-child(2) { width: 1400px; height: 1400px; animation-duration: 90s; animation-direction: reverse; border-color: rgba(71,197,251,.07); }
+.pricing-orbits span:nth-child(3) { width: 2000px; height: 2000px; animation-duration: 140s; border-color: rgba(240,171,252,.05); }
+@keyframes orbit-turn { to { transform: rotateX(72deg) rotateZ(360deg); } }
+
+/* Monthly / yearly switch. */
+.billing-toggle {
+  position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; align-self: flex-start; padding: 5px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.billing-toggle button {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 22px; border-radius: 999px;
+  font-size: 14px; font-weight: 600; color: rgba(228,228,231,.75); transition: color .3s;
+}
+.billing-toggle button[aria-checked="true"] { color: #0b0b12; }
+.billing-pill {
+  position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc(50% - 5px); border-radius: 999px; background: #fff;
+  box-shadow: 0 8px 26px -10px rgba(124,131,255,.9); transition: transform .45s var(--ease-out);
+}
+.billing-toggle[data-value="yearly"] .billing-pill { transform: translateX(100%); }
+.billing-save {
+  padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: #0b0b12; background: linear-gradient(135deg, #c7c9ff, #47c5fb); white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .billing-toggle button { padding: 9px 14px; font-size: 13.5px; gap: 6px; }
+  .billing-save { font-size: 9.5px; padding: 2px 6px; }
+}
+
+/* Cards. */
+.plan-grid { display: grid; gap: 22px; align-items: stretch; }
+@media (min-width: 1024px) { .plan-grid { grid-template-columns: repeat(3, 1fr); } }
+.plan-slot { display: flex; }
+.plan-card { position: relative; flex: 1; display: flex; border-radius: 28px; padding: 1px; background: rgba(255,255,255,.09); transition: transform .45s var(--ease-out); }
+.plan-card:hover { transform: translateY(-6px); }
+.plan-inner {
+  position: relative; flex: 1; display: flex; flex-direction: column; gap: 24px; padding: 30px 28px 26px; border-radius: 27px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.01) 45%), rgba(10,10,18,.72);
+}
+/* Pro: a light that orbits its border. */
+@property --orbit { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.plan-card--popular { background: conic-gradient(from var(--orbit), rgba(158,163,255,.15), #9ea3ff 12%, #47c5fb 20%, rgba(158,163,255,.15) 34%, rgba(158,163,255,.15)); animation: orbit-light 6s linear infinite; }
+.plan-card--popular .plan-inner { background: radial-gradient(120% 80% at 100% 0%, rgba(124,131,255,.2), transparent 55%), rgba(10,10,20,.78); }
+.plan-card--popular::before { content: ""; position: absolute; inset: -30px; z-index: -1; border-radius: 50px; background: radial-gradient(closest-side, rgba(124,131,255,.28), transparent); filter: blur(10px); }
+@keyframes orbit-light { to { --orbit: 360deg; } }
+/* Pro+: a warm aurora rim. */
+.plan-card--max { background: linear-gradient(140deg, rgba(255,210,154,.55), rgba(240,171,252,.35) 40%, rgba(255,255,255,.08) 70%); }
+.plan-card--max .plan-inner { background: radial-gradient(120% 80% at 100% 0%, rgba(255,190,120,.14), transparent 55%), rgba(12,10,16,.78); }
+
+.plan-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 500; letter-spacing: -.03em; color: #fff; }
+.plan-tag { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #0b0b12; background: linear-gradient(135deg, #c7c9ff, #47c5fb); }
+.plan-tag--max { background: linear-gradient(135deg, #ffd29a, #f0abfc); }
+.plan-tagline { font-size: 14px; line-height: 1.5; color: rgba(212,212,216,.72); max-width: min(17rem, calc(100% - 96px)); } /* clear of the planet */
+
+/* The planet each card wears: its real map scrolling across a shaded sphere. */
+.plan-planet {
+  position: absolute; top: 22px; right: 22px; width: 76px; aspect-ratio: 1; border-radius: 50%;
+  background-size: 200% 100%; background-repeat: repeat-x; animation: planet-spin 40s linear infinite;
+  box-shadow: inset -16px -8px 24px rgba(0,0,0,.9), inset 5px 3px 10px rgba(255,255,255,.22), 0 0 46px -8px var(--glow, rgba(158,163,255,.6));
+}
+.plan-planet--moon { background-image: url(/textures/planets/moon_1k.jpg); --glow: rgba(220,220,235,.35); width: 60px; }
+.plan-planet--saturn { background-image: url(/textures/planets/saturn_2k.jpg); --glow: rgba(243,220,176,.45); }
+.plan-planet--saturn::after {
+  content: ""; position: absolute; left: -26%; right: -26%; top: 41%; height: 18%; border-radius: 50%;
+  border: 3px solid rgba(225,205,170,.75); border-top-color: transparent; transform: rotate(-16deg);
+}
+.plan-planet--jupiter { background-image: url(/textures/planets/jupiter_2k.jpg); --glow: rgba(255,200,150,.5); width: 92px; top: 16px; right: 16px; }
+@keyframes planet-spin { to { background-position: -200% 0; } }
+
+.plan-price { display: flex; align-items: flex-end; gap: 10px; min-height: 64px; }
+.plan-amount { font-family: var(--font-display); font-size: clamp(3rem, 4.2vw, 3.8rem); font-weight: 500; letter-spacing: -.05em; line-height: .9; color: #fff; animation: price-roll .5s var(--ease-out) both; }
+@keyframes price-roll { from { opacity: 0; transform: translateY(40%); } }
+.plan-period { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; font-size: 13.5px; color: rgba(212,212,216,.7); }
+.plan-permonth { font-style: normal; font-size: 12px; color: #9ee6ff; }
+
+/* Credits meter (log scale), fills when the card scrolls in. */
+.plan-credits { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.07); background: rgba(0,0,0,.28); }
+.plan-credits-num { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: #fff; letter-spacing: -.02em; }
+.plan-credits-apps { font-size: 12.5px; color: rgba(212,212,216,.7); white-space: nowrap; }
+.plan-meter { position: relative; height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+.plan-meter span {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: left center; transform: scaleX(var(--fill, 1));
+  background: linear-gradient(90deg, #7c83ff, #47c5fb, #f0abfc);
+  transition: transform 1.4s var(--ease-out) .3s;
+}
+.reveal-ready [data-reveal]:not(.is-revealed) .plan-meter span { transform: scaleX(0); }
+
+/* What each plan includes: small visual tiles. */
+.specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.spec {
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px 13px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.025);
+  transition: border-color .25s, background-color .25s, transform .3s var(--ease-out);
+}
+.spec:hover { border-color: rgba(158,163,255,.3); background: rgba(124,131,255,.06); transform: translateY(-2px); }
+.spec--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.spec-label { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(212,212,216,.6); }
+.spec-label svg { color: #9ea3ff; flex-shrink: 0; }
+.spec-note { font-size: 12px; color: rgba(212,212,216,.62); }
+
+.spec-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.spec-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #e4e4e7; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); white-space: nowrap; align-self: flex-start; }
+.spec-chip--on { color: #fff; border-color: rgba(158,163,255,.45); background: rgba(124,131,255,.16); }
+.spec-chip--max { color: #0b0b12; border-color: transparent; background: linear-gradient(135deg, #ffd29a, #f0abfc); }
+
+.spec-value { display: flex; align-items: baseline; gap: 6px; }
+.spec-value strong { font-family: var(--font-display); font-size: 1.7rem; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: #fff; }
+.spec-value span { font-size: 12px; color: rgba(212,212,216,.62); }
+.spec-dots { display: flex; gap: 3px; }
+.spec-dots i { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.1); }
+.spec-dots i.on { background: linear-gradient(90deg, #7c83ff, #47c5fb); box-shadow: 0 0 8px -2px rgba(71,197,251,.8); }
+
+.spec-bars { display: flex; align-items: flex-end; gap: 4px; height: 26px; }
+.spec-bars i { width: 9px; border-radius: 3px; background: rgba(255,255,255,.1); }
+.spec-bars i:nth-child(1) { height: 40%; } .spec-bars i:nth-child(2) { height: 70%; } .spec-bars i:nth-child(3) { height: 100%; }
+.spec-bars i.on { background: linear-gradient(180deg, #c7c9ff, #7c83ff); box-shadow: 0 0 10px -3px rgba(124,131,255,.9); }
+
+.spec-status { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; color: #fff; }
+.spec-status i { position: relative; width: 8px; height: 8px; border-radius: 50%; }
+.spec-status i::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2s cubic-bezier(0,0,.2,1) infinite; }
+.spec-status--go i { background: #4ade80; }
+.spec-status--pause i { background: #fbbf24; }
+.spec-status--pause i::after { animation: none; }
+@keyframes ping { 0% { transform: scale(1); opacity: .6; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+
+/* A preview of the badge Free apps carry. */
+.spec-madewith {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 9px 4px 7px; border-radius: 7px;
+  font-size: 11.5px; font-weight: 600; color: #0b0b12; background: #fff; box-shadow: 0 4px 14px -6px rgba(0,0,0,.8); white-space: nowrap;
+}
+.spec-madewith i { width: 10px; height: 10px; border-radius: 50%; background: conic-gradient(from 90deg, #7c83ff, #47c5fb, #f0abfc, #7c83ff); }
+
+.plan-cta {
+  display: flex; align-items: center; justify-content: center; padding: 14px 20px; border-radius: 999px; font-size: 15px; font-weight: 600;
+  color: #0b0b12; background: linear-gradient(180deg, #fff, #d9dbff); box-shadow: 0 12px 36px -12px rgba(124,131,255,.8);
+}
+.plan-cta--ghost { color: #fff; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.plan-cta--ghost:hover { background: rgba(255,255,255,.1); }
+.plan-cta--soon { cursor: default; color: rgba(255,255,255,.85); background: rgba(124,131,255,.18); box-shadow: inset 0 0 0 1px rgba(158,163,255,.35); }
+.plan-card--max .plan-cta--soon { background: rgba(255,190,120,.12); box-shadow: inset 0 0 0 1px rgba(255,210,154,.3); }
+
+/* Comparison table. */
+.plan-check { flex-shrink: 0; color: #9ea3ff; }
+.plan-dash { flex-shrink: 0; color: rgba(161,161,170,.6); }
+.compare { border-radius: 24px; overflow-x: auto; }
+.compare table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: 14.5px; }
+.compare th, .compare td { padding: 16px 20px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.07); vertical-align: middle; }
+.compare thead th { position: sticky; top: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: #fff; background: rgba(10,10,18,.6); }
+.compare thead th > * { vertical-align: middle; }
+.compare tbody th { font-weight: 500; color: rgba(212,212,216,.75); width: 26%; }
+/* On narrow screens the table scrolls sideways; keep the feature names pinned. */
+@media (max-width: 767px) { .compare tbody th, .compare thead th:first-child { position: sticky; left: 0; z-index: 1; background: #0d0d16; box-shadow: 1px 0 0 rgba(255,255,255,.07); } }
+.compare tbody td { color: #f4f4f5; }
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+.compare tbody tr { transition: background-color .2s; }
+.compare tbody tr:hover { background: rgba(255,255,255,.025); }
+.compare .is-popular { background: rgba(124,131,255,.07); }
+.compare-planet {
+  display: inline-block; width: 22px; height: 22px; margin-right: 10px; border-radius: 50%; background-size: 200% 100%;
+  box-shadow: inset -5px -3px 7px rgba(0,0,0,.85), inset 2px 1px 3px rgba(255,255,255,.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-card--popular { animation: none !important; --orbit: 40deg; }
+  .plan-card:hover { transform: none; }
+  .pricing-orbits span, .plan-planet, .spec-status i::after { animation: none !important; }
+  .spec:hover { transform: none; }
+}

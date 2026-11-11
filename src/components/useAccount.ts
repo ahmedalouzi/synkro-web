@@ -40,6 +40,8 @@ export function useAccount() {
 
 export const planName = (account: Account) => {
   const plan = (account.tier || account.plan || 'free').toString();
+  // "pro_plus", "pro-plus", "proplus" and "pro+" all display as Pro+.
+  if (/^pro[\s_+-]*(plus|\+)$|^pro\+$/i.test(plan)) return 'Pro+';
   return plan.charAt(0).toUpperCase() + plan.slice(1);
 };
 

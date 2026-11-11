@@ -108,7 +108,7 @@ export default function DocsPage() {
         <p>The full list is in <strong>Help › Keyboard Shortcuts</strong>.</p>
 
         <h2 id="plans">Plans and usage</h2>
-        <p>Every plan includes AI usage that refreshes weekly; see what is left in <strong>Settings › Plan & Usage</strong>. Free uses Auto model selection and includes 2,000 Tab completions a month. Pro adds more usage, unlimited Tab and model choice. See <Link href="/pricing">pricing</Link>.</p>
+        <p>Every plan includes monthly credits for the agent and chat; see what is left in <strong>Settings › Plan & Usage</strong>. Free includes 150 credits a month on the fast model. Pro (4,000 credits) and Pro+ (12,000 credits) unlock every model and keep working on the fast model when credits run out. See <Link href="/pricing">pricing</Link>.</p>
       </article>
       </div>
     </div>

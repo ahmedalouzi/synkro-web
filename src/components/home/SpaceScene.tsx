@@ -18,8 +18,8 @@ import { loadThree } from './threeLoader';
 
 /**
  * The home hero's 3D world (three.js): a black sky of twinkling stars, a sun with a boiling
- * surface and a lens streak, Saturn (banded clouds, rings in its shadow), an ice giant and a
- * cratered moon (all procedural shaders, see planetShaders.ts), small meteors streaking past,
+ * surface and a lens streak, Saturn (banded clouds, rings in its shadow), Jupiter, Mars, Uranus,
+ * Neptune and a cratered moon (all procedural shaders, see planetShaders.ts), small meteors streaking past,
  * and a bank of fog low along the bottom. The glass atom (the Atomvs mark) floats
  * above the fog.
  *
@@ -278,6 +278,31 @@ export function SpaceScene() {
       const moon = new THREE.Mesh(new THREE.SphereGeometry(0.55, 48, 48), sphereMat(ROCK_FRAG, {}));
       scene.add(moon);
 
+      // Jupiter, Mars and Uranus: banded procedural stand-ins until their real maps load.
+      const gas = (c1: string, c2: string, c3: string, c4: string, atmo: string, bands: number) => {
+        const m = sphereMat(GAS_FRAG, {
+          uC1: { value: new THREE.Color(c1) },
+          uC2: { value: new THREE.Color(c2) },
+          uC3: { value: new THREE.Color(c3) },
+          uC4: { value: new THREE.Color(c4) },
+          uAtmo: { value: new THREE.Color(atmo) },
+          uBands: { value: bands },
+          uKind: { value: 0 },
+        });
+        timed.push(m);
+        return m;
+      };
+      const jupiter = new THREE.Mesh(new THREE.SphereGeometry(8, 96, 96), gas('#c9a27a', '#efe1c8', '#a8724b', '#8f8a7c', '#f0d6b0', 26));
+      jupiter.scale.y = 0.935; // Jupiter is flattened by its fast spin
+      jupiter.rotation.z = 0.05;
+      scene.add(jupiter);
+      const mars = new THREE.Mesh(new THREE.SphereGeometry(1.15, 64, 64), gas('#b5562f', '#d07a4a', '#8a3a22', '#e9d8cf', '#ffb48a', 5));
+      mars.rotation.z = 0.44;
+      scene.add(mars);
+      const uranus = new THREE.Mesh(new THREE.SphereGeometry(3.4, 64, 64), gas('#9fd8de', '#b8eef2', '#8cc7cf', '#7fb9c2', '#a8eef5', 8));
+      uranus.rotation.z = 1.71; // Uranus rolls on its side
+      scene.add(uranus);
+
       // ── Meteors: small streaks with a glowing head, a few at a time ──────
       const tailGeo = new THREE.PlaneGeometry(1, 1).translate(-0.5, 0, 0); // head at the origin, tail behind
       const meteors = Array.from({ length: 6 }, () => {
@@ -415,8 +440,12 @@ export function SpaceScene() {
         // Keep the planets inside the frame on both wide and tall screens.
         sun.position.set(narrow ? 16 : 52, narrow ? 34 : 26, -130);
         saturn.position.set(narrow ? -14 : -44, narrow ? 22 : 14, -95);
-        blue.position.set(narrow ? 9 : 26, narrow ? 8 : 1, -60);
-        moon.position.set(narrow ? -6 : -30, narrow ? 27 : 20, -80);
+        blue.position.set(narrow ? 9 : 26, narrow ? 8 : 7, -60);
+        moon.position.set(narrow ? -6 : -46, narrow ? 27 : 26, narrow ? -80 : -90);
+        jupiter.position.set(narrow ? -14 : -41, narrow ? 52 : 31, narrow ? -200 : -150);
+        mars.position.set(narrow ? -10 : 24, narrow ? 14 : 12, -70);
+        uranus.position.set(-60, -2, -110);
+        uranus.visible = !narrow; // no room on phones
         // Shade from the sun's direction but from in front of the planets, so they read three-quarter
         // lit (as in space photography) instead of showing us their night side.
         sunPos.set(sun.position.x * 1.4, sun.position.y * 1.2, 30);
@@ -487,6 +516,9 @@ export function SpaceScene() {
         for (const m of timed) m.uniforms.uTime.value = t;
         saturnBody.rotation.y = t * 0.04;
         blueBody.rotation.y = t * 0.06;
+        jupiter.rotation.y = t * 0.05;
+        mars.rotation.y = 1.2 + t * 0.04;
+        uranus.rotation.y = t * 0.03;
         halo1.material.opacity = 0.55 + 0.08 * Math.sin(t * 0.8);
         streak.material.opacity = 0.26 * easeOut((t - 1) / 2);
 
@@ -585,8 +617,17 @@ export function SpaceScene() {
               return tex;
             })
             .catch(() => null);
-        const [satTex, ringTex2, nepTex, moonTex, sunTex] = await Promise.all(
-          ['saturn_2k.jpg', 'saturn_ring.png', 'neptune_2k.jpg', 'moon_4k.jpg', 'sun_2k.jpg'].map(tryLoad),
+        const [satTex, ringTex2, nepTex, moonTex, sunTex, jupTex, marsTex, uraTex] = await Promise.all(
+          [
+            'saturn_2k.jpg',
+            'saturn_ring.png',
+            'neptune_2k.jpg',
+            'moon_4k.jpg',
+            'sun_2k.jpg',
+            'jupiter_2k.jpg',
+            'mars_2k.jpg',
+            'uranus_2k.jpg',
+          ].map(tryLoad),
         );
         if (disposed) return;
         const swap = (mesh: InstanceType<typeof THREE.Mesh>, mat: InstanceType<typeof THREE.ShaderMaterial>) => {
@@ -611,6 +652,9 @@ export function SpaceScene() {
         if (satTex) swap(saturnBody, planetMat(satTex, '#f3dcb0', 0.12, 0.7, 0.4));
         if (nepTex) swap(blueBody, planetMat(nepTex, '#7fc4ff', 0.1, 1.1, 0.35));
         if (moonTex) swap(moon, planetMat(moonTex, '#000000', 0.02, 0, 0.15));
+        if (jupTex) swap(jupiter, planetMat(jupTex, '#f0d6b0', 0.12, 0.6, 0.4));
+        if (marsTex) swap(mars, planetMat(marsTex, '#ffb48a', 0.05, 0.35, 0.25));
+        if (uraTex) swap(uranus, planetMat(uraTex, '#a8eef5', 0.1, 1.0, 0.35));
         if (sunTex) {
           sunTex.colorSpace = THREE.SRGBColorSpace;
           swap(sunCore, new THREE.ShaderMaterial({ vertexShader: EARTH_VERT, fragmentShader: SUN_TEX_FRAG, uniforms: { uMap: { value: sunTex } } }));
