@@ -5,6 +5,7 @@ import { latestWindowsDownload } from '@/lib/latest-release';
 // The Download links follow the latest release: re-checked at most every 10 minutes.
 export const revalidate = 600;
 import { SmartScreenGuide } from '@/components/SmartScreenGuide';
+import { PageHero } from '@/components/PageHero';
 
 export const metadata: Metadata = { title: 'Download' };
 
@@ -42,21 +43,19 @@ const faq = [
 export default async function DownloadPage() {
   const windows = await latestWindowsDownload();
   return (
-    <div className="mx-auto max-w-content px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mb-12 flex flex-col gap-3">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Download Atomvs</h1>
-        <p className="max-w-xl text-muted">Install, sign in, and open or create a project. Updates install automatically.</p>
-      </div>
+    <div className="wrap pb-24">
+      <PageHero kicker="Download" title={<>Download <em>Atomvs.</em></>} lead="Install, sign in, and open or create a project. Updates install automatically." />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        {platforms(windows.url).map((p) => (
-          <div key={p.name} className="flex flex-col gap-4 rounded-2xl border border-line-strong bg-panel p-6">
+        {platforms(windows.url).map((p, i) => (
+          <div key={p.name} data-reveal style={{ transitionDelay: `${i * 80}ms` }}>
+          <div className={`glass flex h-full flex-col gap-4 rounded-2xl p-6 ${p.available ? 'lift' : ''}`}>
             <div className="flex flex-col gap-1">
-              <h2 className="font-display text-xl font-semibold">{p.name}</h2>
+              <h2 className="font-display text-2xl font-medium tracking-tight">{p.name}</h2>
               <p className="text-sm text-muted">{p.detail}</p>
             </div>
             {p.available ? (
-              <a href={p.href} className="mt-auto rounded-lg bg-ink px-4 py-2.5 text-center text-sm font-semibold text-base transition-opacity hover:opacity-90">
+              <a href={p.href} className="press mt-auto rounded-lg bg-ink px-4 py-2.5 text-center text-sm font-semibold text-base transition-opacity hover:opacity-90">
                 Download
               </a>
             ) : (
@@ -65,10 +64,11 @@ export default async function DownloadPage() {
               </span>
             )}
           </div>
+          </div>
         ))}
       </div>
 
-      <section className="mt-16 grid gap-8 sm:grid-cols-3">
+      <section className="mt-16 grid gap-8 sm:grid-cols-3" data-reveal>
         {[
           ['1. Install', 'Run the installer. Windows asks you to confirm the first launch (see below).'],
           ['2. Sign in', 'Create a free account in the app, or sign in with your existing one.'],
@@ -81,16 +81,16 @@ export default async function DownloadPage() {
         ))}
       </section>
 
-      <section id="smartscreen" className="mt-20 flex flex-col gap-4">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">“Windows protected your PC”?</h2>
+      <section id="smartscreen" className="mt-20 flex flex-col gap-4" data-reveal>
+        <h2 className="h-section">“Windows protected your PC”?</h2>
         <SmartScreenGuide installerName={windows.fileName} />
       </section>
 
-      <section id="requirements" className="mt-20 flex flex-col gap-4">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">System requirements</h2>
-        <div className="overflow-x-auto rounded-2xl border border-line-strong">
+      <section id="requirements" className="mt-20 flex flex-col gap-4" data-reveal>
+        <h2 className="h-section">System requirements</h2>
+        <div className="glass overflow-x-auto rounded-2xl">
           <table className="w-full min-w-[560px] border-collapse text-left text-sm">
-            <thead className="bg-panel text-ink">
+            <thead className="bg-white/[0.03] text-ink">
               <tr>
                 <th className="px-4 py-3 font-medium">Component</th>
                 <th className="px-4 py-3 font-medium">Minimum</th>
@@ -110,9 +110,9 @@ export default async function DownloadPage() {
         </div>
       </section>
 
-      <section id="faq" className="mt-20 flex flex-col gap-4">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Questions</h2>
-        <div className="flex flex-col divide-y divide-line rounded-2xl border border-line-strong bg-panel">
+      <section id="faq" className="mt-20 flex flex-col gap-4" data-reveal>
+        <h2 className="h-section">Questions</h2>
+        <div className="glass flex flex-col divide-y divide-line rounded-2xl">
           {faq.map(({ q, a }) => (
             <details key={q} className="group px-5 py-4">
               <summary className="cursor-pointer list-none font-medium marker:hidden">{q}</summary>

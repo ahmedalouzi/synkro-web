@@ -2,30 +2,14 @@
 
 import { useEffect, useRef, type ReactNode } from 'react';
 
-/** Tracks the pointer inside the element as --mx / --my (used for spotlight gradients). */
-export function Spotlight({ className = '', children }: { className?: string; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      el.style.setProperty('--my', `${e.clientY - r.top}px`);
-    };
-    el.addEventListener('pointermove', onMove);
-    return () => el.removeEventListener('pointermove', onMove);
-  }, []);
-  return <div ref={ref} className={className}>{children}</div>;
-}
-
 /**
  * Fades [data-reveal] descendants in as they scroll into view. Content is fully visible
  * without JavaScript; the animation only arms once this runs (html.reveal-ready).
+ * With reduced motion the CSS turns the rise into a short fade (no movement).
+ * Rendered by app/template.tsx, so it re-runs on every page navigation.
  */
 export function RevealOnScroll() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const root = document.documentElement;
     const items = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
     // Anything already on screen stays put; only content below the fold animates in.
@@ -57,11 +41,20 @@ export function GlowCard({ className = '', children }: { className?: string; chi
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    el.style.setProperty('--x', `${e.clientX - r.left}px`);
-    el.style.setProperty('--y', `${e.clientY - r.top}px`);
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    el.style.setProperty('--x', `${x}px`);
+    el.style.setProperty('--y', `${y}px`);
+    // A gentle 3D lean toward the pointer (CSS turns it off for reduced motion).
+    el.style.setProperty('--ry', `${((x / r.width - 0.5) * 6).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${((0.5 - y / r.height) * 6).toFixed(2)}deg`);
+  };
+  const onLeave = () => {
+    ref.current?.style.setProperty('--rx', '0deg');
+    ref.current?.style.setProperty('--ry', '0deg');
   };
   return (
-    <div ref={ref} onPointerMove={onMove} className={`glow-card ${className}`}>
+    <div ref={ref} onPointerMove={onMove} onPointerLeave={onLeave} className={`glow-card ${className}`}>
       {children}
     </div>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { PageHero } from '@/components/PageHero';
 
 export const metadata: Metadata = { title: 'Docs' };
 
@@ -34,7 +35,9 @@ const shortcuts = [
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto grid max-w-content gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[200px_1fr]">
+    <div className="wrap pb-24">
+      <PageHero kicker="Docs" title={<>Atomvs <em>docs.</em></>} lead="Everything you need to build Flutter and React Native apps with Atomvs." />
+      <div className="grid gap-12 lg:grid-cols-[220px_1fr]">
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <nav aria-label="On this page" className="flex flex-col gap-1.5 text-sm">
           <span className="mb-1 text-xs font-medium uppercase tracking-wider text-faint">On this page</span>
@@ -47,9 +50,6 @@ export default function DocsPage() {
       </aside>
 
       <article className="prose-synkro min-w-0">
-        <h1 className="mb-3 font-display text-4xl font-semibold tracking-tight text-[#f4f4f5]">Atomvs docs</h1>
-        <p>Everything you need to build Flutter and React Native apps with Atomvs.</p>
-
         <h2 id="getting-started">Getting started</h2>
         <ol>
           <li><Link href="/download">Download</Link> and install Atomvs.</li>
@@ -108,8 +108,9 @@ export default function DocsPage() {
         <p>The full list is in <strong>Help › Keyboard Shortcuts</strong>.</p>
 
         <h2 id="plans">Plans and usage</h2>
-        <p>Every plan includes AI usage that refreshes weekly; see what is left in <strong>Settings › Plan & Usage</strong>. Free uses Auto model selection and includes 2,000 Tab completions a month. Pro adds more usage, unlimited Tab and model choice. See <Link href="/pricing">pricing</Link>.</p>
+        <p>Every plan includes monthly credits for the agent and chat; see what is left in <strong>Settings › Plan & Usage</strong>. Free includes 150 credits a month on the fast model. Pro (4,000 credits) and Pro+ (12,000 credits) unlock every model and keep working on the fast model when credits run out. See <Link href="/pricing">pricing</Link>.</p>
       </article>
+      </div>
     </div>
   );
 }

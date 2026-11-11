@@ -11,8 +11,10 @@ export default function BetaFeedbackPage({ searchParams }: { searchParams: { wee
   const computed = Math.ceil((Date.now() - BETA_START) / (7 * 24 * 60 * 60 * 1000));
   const week = Math.max(1, Number.isFinite(fromUrl) ? fromUrl : computed);
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <BetaFeedbackForm week={week} />
+    <div className="wrap pb-24 pt-16">
+      <div className="max-w-2xl">
+        <BetaFeedbackForm week={week} />
+      </div>
     </div>
   );
 }

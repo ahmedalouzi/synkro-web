@@ -40,7 +40,7 @@ export default function AccountPage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-3xl font-semibold tracking-tight">Account</h1>
+          <h1 className="h-section">Account</h1>
           <p className="text-muted">{a.email}</p>
         </div>
         <button type="button" onClick={() => void signOut()} className="rounded-lg border border-line-strong px-3 py-1.5 text-sm text-muted hover:bg-hover hover:text-ink">Sign out</button>

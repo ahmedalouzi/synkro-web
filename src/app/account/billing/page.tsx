@@ -30,7 +30,7 @@ export default function BillingPage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16 sm:px-6">
       <div className="flex flex-col gap-1">
         <Link href="/account" className="text-sm text-muted hover:text-ink">← Account</Link>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Billing</h1>
+        <h1 className="h-section">Billing</h1>
       </div>
 
       <section className="flex flex-col divide-y divide-line rounded-2xl border border-line-strong bg-panel">

@@ -1,56 +1,81 @@
 import type { Metadata } from 'next';
-import { PlanCards } from '@/components/PlanCards';
+import { PageHero } from '@/components/PageHero';
+import { PlanCards, PlanCompare } from '@/components/PlanCards';
+import './pricing.css';
 
 export const metadata: Metadata = { title: 'Pricing' };
 
 const faq = [
   {
-    q: 'What is “included AI usage”?',
-    a: 'Every plan includes a weekly amount of AI usage for the agent and chat. Short questions use a little, long agent tasks on large projects use more. Your remaining usage is always visible in Atomvs under Settings › Plan & Usage, and it refreshes every Monday.',
+    q: 'What are credits?',
+    a: 'Credits measure the AI work the agent and chat do for you. Short questions use a few; long agent tasks on large projects use more. Free includes 150 credits a month, Pro 4,000 and Pro+ 12,000. Your balance is always visible in Atomvs under Settings › Plan & Usage.',
+  },
+  {
+    q: 'How many apps is that?',
+    a: 'Roughly 3–4 apps on Free, about 100 on Pro and about 300 on Pro+. The real number depends on how big each app is and how much you iterate on it.',
   },
   {
     q: 'What happens when I run out?',
-    a: 'On Free, AI requests pause until your usage refreshes the next week. On Pro, Atomvs keeps working by switching to a fast model until the refresh.',
-  },
-  {
-    q: 'Do Tab completions count against my usage?',
-    a: 'No. Free includes 2,000 Tab completions a month; on Pro they are unlimited.',
+    a: 'On Free, AI requests pause until your credits refresh next month. On Pro and Pro+, Atomvs keeps working on the fast model until they refresh.',
   },
   {
     q: 'Can I choose the AI model?',
-    a: 'On Free, Auto picks a fast model for each task. Pro lets you choose a premium model from the model menu in the chat or in Settings › Models.',
+    a: 'Free uses the fast model. Pro unlocks every model in the model menu. Pro+ unlocks every model and puts the most capable ones first.',
+  },
+  {
+    q: 'How does yearly billing work?',
+    a: 'Pay for a year up front and get two months free: Pro is $200 a year instead of $240, and Pro+ is $500 instead of $600.',
+  },
+  {
+    q: 'What is the “Made with Atomvs” badge?',
+    a: 'Apps built on the Free plan show a small “Made with Atomvs” badge. Pro and Pro+ remove it.',
   },
   {
     q: 'Can I cancel any time?',
-    a: 'Yes. You keep Pro until the end of the billing period, then your account goes back to Free.',
+    a: 'Yes. You keep your paid plan until the end of the billing period, then your account goes back to Free.',
   },
 ];
 
 export default function PricingPage() {
   return (
-    <div className="mx-auto max-w-content px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mb-12 flex flex-col items-center gap-3 text-center">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Simple pricing</h1>
-        <p className="max-w-xl text-muted">Start free. Upgrade when you build every day.</p>
+    <div className="pricing-page">
+      <div className="pricing-orbits" aria-hidden="true">
+        <span />
+        <span />
+        <span />
       </div>
-      <div className="mx-auto max-w-4xl">
-        <PlanCards />
-      </div>
+      <div className="wrap pb-24">
+        <PageHero
+          kicker="Pricing"
+          title={<>Pick your <em>orbit.</em></>}
+          lead="Start free. Upgrade when you build every day — switch plans or cancel any time."
+        />
 
-      <section className="mx-auto mt-20 max-w-3xl">
-        <h2 className="mb-6 font-display text-2xl font-semibold">Questions</h2>
-        <div className="divide-y divide-line rounded-2xl border border-line">
-          {faq.map((item) => (
-            <details key={item.q} className="group p-5 [&_summary::-webkit-details-marker]:hidden">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
-                {item.q}
-                <span className="text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
+        <PlanCards />
+
+        <section className="mt-32" data-reveal>
+          <div className="mb-10 flex flex-col gap-4">
+            <p className="kicker"><span className="dot" />Compare plans</p>
+            <h2 className="h-section">Every detail, <em>side by side.</em></h2>
+          </div>
+          <PlanCompare />
+        </section>
+
+        <section className="mt-32 max-w-3xl" data-reveal>
+          <h2 className="h-section mb-8">Good <em>questions.</em></h2>
+          <div className="glass divide-y divide-line rounded-2xl">
+            {faq.map((item) => (
+              <details key={item.q} className="group p-5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
+                  {item.q}
+                  <span className="text-muted transition-transform duration-300 group-open:rotate-45" aria-hidden="true">+</span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

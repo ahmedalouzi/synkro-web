@@ -19,49 +19,84 @@ export const site = {
   billingPortalUrl: process.env.NEXT_PUBLIC_BILLING_PORTAL_URL || '',
 };
 
+export type PlanId = 'free' | 'pro' | 'pro_plus';
+
 export interface Plan {
-  id: 'free' | 'pro';
+  id: PlanId;
   name: string;
-  price: string;
-  period: string;
-  summary: string;
-  features: string[];
+  tagline: string;
+  /** US$ per month, billed monthly. */
+  monthly: number;
+  /** US$ per year, billed yearly (two months free); null for Free. */
+  yearly: number | null;
+  /** AI credits included each month. */
+  credits: number;
+  /** Roughly how many apps those credits build. */
+  apps: string;
+  models: string;
+  /** Cloud Android builds per day. */
+  apkPerDay: number;
+  /** 0 = standard queue, 1 = priority, 2 = top priority. */
+  priority: 0 | 1 | 2;
+  whenOut: string;
+  /** Apps built on this plan show the "Made with Atomvs" badge. */
+  badge: boolean;
+  /** Which planet the card wears (public/textures/planets). */
+  planet: 'moon' | 'saturn' | 'jupiter';
+  highlight?: 'popular' | 'max';
 }
 
 /**
- * Mirrors the server's plan policy (packages/agent/src/models/usage-limits.ts in the Synkro repo).
- * Keep the two in sync when limits change.
+ * The plan policy shown on /pricing. It must match the server's plan policy
+ * (packages/agent/src/models/usage-limits.ts in the Synkro repo) and the Terms — keep them in sync.
  */
 export const plans: Plan[] = [
   {
     id: 'free',
     name: 'Free',
-    price: '$0',
-    period: 'forever',
-    summary: 'Everything you need to build your first apps.',
-    features: [
-      'Flutter & React Native projects',
-      'Live phone preview with real device frames',
-      'AI agent, chat and inline edits (Ctrl+K)',
-      'Included AI usage that refreshes every week',
-      '2,000 Tab completions per month',
-      'Auto model selection',
-    ],
+    tagline: 'Everything you need to build your first apps.',
+    monthly: 0,
+    yearly: null,
+    credits: 150,
+    apps: '3–4 apps',
+    models: 'Fast model',
+    apkPerDay: 3,
+    priority: 0,
+    whenOut: 'Pauses until your credits refresh',
+    badge: true,
+    planet: 'moon',
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '$20',
-    period: 'per month',
-    summary: 'For people who build every day.',
-    features: [
-      'Everything in Free',
-      '10× the weekly AI usage',
-      'Unlimited Tab completions',
-      'Choose premium models',
-      'Keeps working on a fast model when your weekly usage runs out',
-      'Priority support',
-    ],
+    tagline: 'For people who build every day.',
+    monthly: 20,
+    yearly: 200,
+    credits: 4000,
+    apps: '100 apps',
+    models: 'Every model',
+    apkPerDay: 15,
+    priority: 1,
+    whenOut: 'Keeps going on the fast model',
+    badge: false,
+    planet: 'saturn',
+    highlight: 'popular',
+  },
+  {
+    id: 'pro_plus',
+    name: 'Pro+',
+    tagline: 'Maximum power for teams and serious builders.',
+    monthly: 50,
+    yearly: 500,
+    credits: 12000,
+    apps: '300 apps',
+    models: 'Every model, strongest first',
+    apkPerDay: 30,
+    priority: 2,
+    whenOut: 'Keeps going on the fast model',
+    badge: false,
+    planet: 'jupiter',
+    highlight: 'max',
   },
 ];
 
