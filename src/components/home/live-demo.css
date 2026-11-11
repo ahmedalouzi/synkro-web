@@ -293,3 +293,11 @@
   .ld-stage, .ld-glow, .ld-phone, .ld-code-empty svg { animation: none !important; }
   .ld-app-head, .ld-app-add, .ld-app-day, .ld-app-card, .ld-steps .ld-step, .ld-float { transition: none !important; }
 }
+
+/* WebKit (html.webkit): no 3D. Safari draws the fixed page background over the parts of a 3D-tilted
+   element that fall behind the page plane, which shows up as black wedges. */
+.webkit .ld-stage { perspective: none; animation-name: ld-rise-flat; }
+@keyframes ld-rise-flat { from { opacity: 0; transform: translateY(70px) scale(.95); } }
+.webkit .ld-frame { transform: none; transform-style: flat; }
+.webkit .ld-float { transform: translateY(14px) scale(.9); }
+.webkit .ld-float.is-in { transform: none; }

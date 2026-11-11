@@ -75,10 +75,14 @@ export function HomeMotion() {
           ease: 'none',
           scrollTrigger: { trigger: '.demo-section', start: 'top bottom', end: 'bottom top', scrub: 0.6 },
         });
+        // WebKit (html.webkit) gets 2D versions of the 3D scrubs (see layout.tsx).
+        const webkit = document.documentElement.classList.contains('webkit');
         gsap.fromTo(
           '.hero-stage',
-          { rotateX: 16, scale: 0.92, transformPerspective: 1800, transformOrigin: '50% 0%' },
-          { rotateX: 0, scale: 1, ease: 'none', scrollTrigger: { trigger: '.hero-stage', start: 'top 95%', end: 'top 25%', scrub: 0.6 } },
+          webkit
+            ? { y: 70, scale: 0.92, transformOrigin: '50% 0%' }
+            : { rotateX: 16, scale: 0.92, transformPerspective: 1800, transformOrigin: '50% 0%' },
+          { ...(webkit ? { y: 0 } : { rotateX: 0 }), scale: 1, ease: 'none', scrollTrigger: { trigger: '.hero-stage', start: 'top 95%', end: 'top 25%', scrub: 0.6 } },
         );
 
         // 3. Ticker: skews with scroll velocity, then springs back.
@@ -133,8 +137,8 @@ export function HomeMotion() {
         gsap.set('.tilt > figure', { transition: 'none' }); // CSS transition would lag the scrub
         gsap.fromTo(
           '.tilt > figure',
-          { rotateY: -14, rotateX: 7, transformPerspective: 1400 },
-          { rotateY: 0, rotateX: 0, ease: 'none', scrollTrigger: { trigger: '.tilt', start: 'top 90%', end: 'center 55%', scrub: 0.6 } },
+          webkit ? { y: 60, scale: 0.94 } : { rotateY: -14, rotateX: 7, transformPerspective: 1400 },
+          { ...(webkit ? { y: 0, scale: 1 } : { rotateY: 0, rotateX: 0 }), ease: 'none', scrollTrigger: { trigger: '.tilt', start: 'top 90%', end: 'center 55%', scrub: 0.6 } },
         );
         gsap.utils.toArray<HTMLElement>('[data-speed]').forEach((chip) => {
           gsap.fromTo(chip, { y: 0, autoAlpha: 0 }, {

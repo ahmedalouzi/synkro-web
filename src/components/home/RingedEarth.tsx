@@ -52,7 +52,8 @@ export function RingedEarth() {
       const [dayMap, nightMap, brcMap] = maps;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth > 1600 ? 1.25 : 1.5));
+      const ratioFor = (w: number, h: number) => Math.min(window.devicePixelRatio, 1.5, Math.sqrt(2.1e6 / Math.max(1, w * h)));
+      renderer.setPixelRatio(ratioFor(window.innerWidth, window.innerHeight));
       renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.05;
@@ -136,6 +137,7 @@ export function RingedEarth() {
         const w = el.clientWidth;
         const h = el.clientHeight;
         if (!w || !h) return;
+        renderer.setPixelRatio(ratioFor(w, h));
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         const tanHalf = Math.tan((15 * Math.PI) / 180);

@@ -9,12 +9,12 @@
 .pricing-orbits { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
 .pricing-orbits span {
   position: absolute; left: 50%; top: 520px; border-radius: 50%; border: 1px solid rgba(158,163,255,.09);
-  translate: -50% -50%; transform: rotateX(72deg); animation: orbit-turn 60s linear infinite;
+  translate: -50% -50%; transform: scaleY(.31) rotate(0deg); animation: orbit-turn 60s linear infinite;
 }
 .pricing-orbits span:nth-child(1) { width: 900px; height: 900px; }
 .pricing-orbits span:nth-child(2) { width: 1400px; height: 1400px; animation-duration: 90s; animation-direction: reverse; border-color: rgba(71,197,251,.07); }
 .pricing-orbits span:nth-child(3) { width: 2000px; height: 2000px; animation-duration: 140s; border-color: rgba(240,171,252,.05); }
-@keyframes orbit-turn { to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes orbit-turn { to { transform: scaleY(.31) rotate(360deg); } } /* 2D: no 3D plane for WebKit to mis-sort */
 
 /* Monthly / yearly switch. */
 .billing-toggle {

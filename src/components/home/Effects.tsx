@@ -45,16 +45,9 @@ export function GlowCard({ className = '', children }: { className?: string; chi
     const y = e.clientY - r.top;
     el.style.setProperty('--x', `${x}px`);
     el.style.setProperty('--y', `${y}px`);
-    // A gentle 3D lean toward the pointer (CSS turns it off for reduced motion).
-    el.style.setProperty('--ry', `${((x / r.width - 0.5) * 6).toFixed(2)}deg`);
-    el.style.setProperty('--rx', `${((0.5 - y / r.height) * 6).toFixed(2)}deg`);
-  };
-  const onLeave = () => {
-    ref.current?.style.setProperty('--rx', '0deg');
-    ref.current?.style.setProperty('--ry', '0deg');
   };
   return (
-    <div ref={ref} onPointerMove={onMove} onPointerLeave={onLeave} className={`glow-card ${className}`}>
+    <div ref={ref} onPointerMove={onMove} className={`glow-card ${className}`}>
       {children}
     </div>
   );

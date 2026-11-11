@@ -131,7 +131,12 @@ export function SpaceScene() {
         powerPreference: 'high-performance',
         preserveDrawingBuffer: posterMode,
       });
-      renderer.setPixelRatio(posterMode ? window.devicePixelRatio : Math.min(window.devicePixelRatio, window.innerWidth > 1600 ? 1.25 : 1.5));
+      // Pixel budget: ~2.1 MP whatever the screen (a 5K iMac at full ratio would be ~7 MP a frame).
+      let quality = 1;
+      const ratioFor = (w: number, h: number) =>
+        posterMode ? window.devicePixelRatio : Math.min(window.devicePixelRatio, 1.5, Math.sqrt(2.1e6 / Math.max(1, w * h))) * quality;
+      renderer.setPixelRatio(ratioFor(window.innerWidth, window.innerHeight));
+      renderer.transmissionResolutionScale = 0.5; // the glass refraction pass at half resolution
       renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.15;
@@ -426,8 +431,8 @@ export function SpaceScene() {
       scene.add(fog);
       const fogTints = ['#b48fc4', '#9a88d6', '#c9a0c0', '#7d74c9', '#d6b0c8'];
       const puffs: { s: InstanceType<typeof THREE.Sprite>; speed: number; bob: number; baseY: number }[] = [];
-      for (let i = 0; i < 38; i++) {
-        const front = i < 14; // the nearest puffs sit in front of the atom's base
+      for (let i = 0; i < 26; i++) {
+        const front = i < 10; // the nearest puffs sit in front of the atom's base
         const s = sprite(cloudTex, fogTints[i % fogTints.length], front ? 0.15 + rand() * 0.12 : 0.16 + rand() * 0.14, false);
         const size = front ? 7 + rand() * 6 : 12 + rand() * 12;
         s.scale.set(size * 1.7, size, 1);
@@ -447,6 +452,7 @@ export function SpaceScene() {
         const w = el.clientWidth;
         const h = el.clientHeight;
         if (!w || !h) return;
+        renderer.setPixelRatio(ratioFor(w, h));
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
@@ -572,13 +578,14 @@ export function SpaceScene() {
 
       // Speed guard. Ignore the first 3 s after (re)starting (shader compile, big texture uploads),
       // then judge windows of 90 frames by their MEDIAN frame time, so one-off spikes never count.
+      // Median > 21 ms (< ~48 fps): lower the resolution 15% per window, down to 60%.
       // Median > 45 ms (< ~22 fps): drop the pixel ratio, the glass transmission pass and half the
       // fog. Then two windows in a row at > 66 ms (< 15 fps): stop, show the poster, free the GPU.
       const perf = { started: 0, samples: [] as number[], level: 0, strikes: 0 };
       const degrade = () => {
         perf.level += 1;
         if (perf.level === 1) {
-          renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1) * 0.75);
+          quality = Math.min(quality, 0.6);
           resize();
           const glassMat = nucleus.material as InstanceType<typeof THREE.MeshPhysicalMaterial>;
           glassMat.transmission = 0;
@@ -611,7 +618,12 @@ export function SpaceScene() {
             const median = sorted[45];
             perf.samples = [];
             if (perf.level === 0 && median > 45) degrade();
-            else if (perf.level === 1) {
+            else if (perf.level === 0 && median > 21 && quality > 0.62) {
+              // Adaptive resolution: under ~48 fps, render 15% fewer pixels per step (down to 60%)
+              // until the frame rate is smooth. Nothing else changes, so the design stays intact.
+              quality = Math.max(0.6, quality * 0.85);
+              resize();
+            } else if (perf.level === 1) {
               perf.strikes = median > 66 ? perf.strikes + 1 : 0;
               if (perf.strikes >= 2) degrade();
             }

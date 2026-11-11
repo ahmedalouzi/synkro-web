@@ -21,10 +21,13 @@ export const metadata: Metadata = {
  * Runs before first paint: marks weak devices with html.lowfx so they get the light experience
  * (static poster instead of the 3D scenes, no backdrop blur). Weak = software WebGL or a GPU the
  * browser flags as slow (failIfMajorPerformanceCaveat), <= 2 GB memory (Chromium only), or Save-Data.
- * Core counts are not used: Safari reports them unreliably. `?lowfx=1` forces light mode,
+ * Core counts are not used: Safari reports them unreliably. It also adds html.webkit on Safari and
+ * every iOS browser, where 3D CSS transforms are flattened (WebKit draws the fixed page background
+ * over any part of a 3D-tilted element that falls behind the page plane). `?lowfx=1` forces light mode,
  * `?fx=full` and `?poster=...` (poster capture) skip the check.
  */
-const LOWFX_SCRIPT = `(function(){try{var d=document.documentElement,n=navigator,q=location.search,w=/[?&]lowfx=1/.test(q);
+const LOWFX_SCRIPT = `(function(){try{var d=document.documentElement,n=navigator,q=location.search,w=/[?&]lowfx=1/.test(q),u=n.userAgent;
+if(/AppleWebKit/.test(u)&&!/(Chrome|Chromium|Edg|OPR)\\//.test(u))d.classList.add('webkit');
 if(/[?&](poster=|fx=full)/.test(q))return;
 if(n.connection&&n.connection.saveData)w=true;
 if(n.deviceMemory&&n.deviceMemory<=2)w=true;
