@@ -8,6 +8,7 @@ import { Screenshot } from '@/components/Screenshot';
 import { LiveDemo } from '@/components/home/LiveDemo';
 import { Bento } from '@/components/home/Bento';
 import { SpaceScene } from '@/components/home/SpaceScene';
+import { PosterAtom } from '@/components/home/PosterAtom';
 import { RingedEarth } from '@/components/home/RingedEarth';
 import { HomeMotion } from '@/components/home/HomeMotion';
 import { Marquee } from '@/components/home/Marquee';
@@ -35,8 +36,11 @@ export default async function Home() {
       {/* ── Hero: a 3D space scene, the headline bottom-left, the pitch bottom-right ── */}
       <section className="space-hero" aria-labelledby="hero-title">
         <div className="space-sky" aria-hidden="true" />
-        {/* A still of the 3D scene: shown on weak devices, without WebGL, or when the scene is slow to start. */}
-        <div className="space-poster" aria-hidden="true" />
+        {/* A still of the 3D scene with a light SVG atom on it: shown on weak devices, without WebGL,
+            or while the scene is slow to start. */}
+        <div className="space-poster" aria-hidden="true">
+          <div className="space-poster-frame"><PosterAtom /></div>
+        </div>
         <SpaceScene />
         <div className="space-fade" aria-hidden="true" />
 

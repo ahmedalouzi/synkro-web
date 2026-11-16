@@ -29,11 +29,11 @@ import { loadThree, threeAllowed } from './threeLoader';
  *
  * - three.js loads on demand, after first paint; the canvas fades in once ready.
  * - Renders only while on screen and the tab is visible; pixel ratio capped at 1.5.
- * - Weak devices (html.lowfx), prefers-reduced-motion at load, no WebGL and failures show the
- *   static poster (three.js is not even downloaded then, see threeLoader.ts); a speed guard
- *   degrades, then falls back to it. `?fx=full` disables the guard for testing.
- * - Reduced motion switched on while the scene runs: gentle motion only (orbits, twinkle, slow
- *   spin); no fly-in, camera movement or meteors.
+ * - Weak devices (html.lowfx), no WebGL and failures show the static poster with a lightweight SVG
+ *   atom on it (PosterAtom.tsx; three.js is not even downloaded then, see threeLoader.ts); a speed
+ *   guard degrades, then falls back to it. `?fx=full` disables the guard for testing.
+ * - prefers-reduced-motion: calm mode. The atom turns, the electrons orbit, the planets drift, all at
+ *   half speed; no fly-in, pointer lean, scroll camera or meteors.
  * - WebGL context lost (GPU reset, out of video memory): the poster comes back; if the browser
  *   restores the context, the scene resumes.
  */
@@ -484,10 +484,12 @@ export function SpaceScene() {
 
       // ── Motion ────────────────────────────────────────────────────────────
       const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      // posterMode draws one still frame. Reduced motion keeps the scene alive but gentle: no
-      // fly-in, no camera movement on scroll or pointer, no meteors (vestibular triggers removed).
+      // posterMode draws one still frame. Reduced motion runs the scene in calm mode: no fly-in, no
+      // camera movement on scroll or pointer, no meteors (vestibular triggers removed), and the rest
+      // (atom turn, electrons, planets, twinkle, fog) at half speed.
       const reduced = posterMode;
       let gentle = reduceQuery.matches;
+      const CALM = 0.5;
       const forceFull = new URLSearchParams(window.location.search).get('fx') === 'full';
       let time = 0;
       let stopped = false;
@@ -500,7 +502,7 @@ export function SpaceScene() {
       const target = new THREE.Vector3();
 
       const draw = (t: number, live: boolean) => {
-        const dt = live ? 1 / 60 : 0;
+        const dt = live ? (gentle ? CALM : 1) / 60 : 0;
         const scroll = live && !gentle ? Math.min(1, window.scrollY / window.innerHeight) : 0;
         if (live && !gentle) {
           lean.x += (pointer.x - lean.x) * 0.04;
@@ -614,7 +616,7 @@ export function SpaceScene() {
         raf = 0;
         if (disposed || stopped || contextLost || reduced || !onScreen || document.hidden) return;
         const frameMs = now - last;
-        time += Math.min(frameMs, 50) / 1000;
+        time += (Math.min(frameMs, 50) / 1000) * (gentle ? CALM : 1);
         last = now;
         draw(time, true);
         if (!forceFull && perf.level < 2 && now - perf.started > 3000) {
@@ -800,8 +802,15 @@ export function SpaceScene() {
         if (reduced) draw(STILL_T, false);
       })();
       if (posterMode) {
+        // `&atom=0` leaves the atom out: the posters carry a lightweight SVG atom on top instead
+        // (PosterAtom.tsx), placed where this frame would draw it (data-poster-atom).
+        if (new URLSearchParams(window.location.search).get('atom') === '0') atom.visible = false;
         void upgraded.then(() => {
           draw(STILL_T, false);
+          const c = new THREE.Vector3().setFromMatrixPosition(atom.matrixWorld).project(camera);
+          const edge = new THREE.Vector3(RX * atom.scale.x, 0, 0).add(atom.position).project(camera);
+          html.dataset.posterAtom = JSON.stringify({ x: (c.x + 1) * 50, y: (1 - c.y) * 50, rx: (edge.x - c.x) * 50 });
+          html.dataset.posterPng = canvas.toDataURL('image/png');
           html.dataset.posterReady = '1';
         });
       }

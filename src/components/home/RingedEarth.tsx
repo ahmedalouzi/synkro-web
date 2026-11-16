@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import type { Material, Mesh, Texture } from 'three';
 import { ATMO_FRAG, EARTH_FRAG, EARTH_VERT, RING_FRAG, RING_VERT } from './planetShaders';
-import { loadThree, threeAllowed } from './threeLoader';
+import { loadThree, prefersReducedMotion, threeAllowed } from './threeLoader';
 
 /**
  * The closing section's planet: Earth from real 2K satellite maps (public/textures/earth, from
@@ -16,7 +16,7 @@ import { loadThree, threeAllowed } from './threeLoader';
  *   while on screen.
  * - Weak devices (html.lowfx), prefers-reduced-motion at load, no WebGL, maps that fail to load and
  *   a lost WebGL context show the static poster (.planet-stage.poster-on, public/posters/earth-*.webp)
- *   instead; three.js is not downloaded for the first two (threeLoader.ts).
+ *   instead; on weak devices three.js is not downloaded at all (threeLoader.ts).
  * - `?poster=earth` renders one still frame and puts it on <html data-earth-poster> as a PNG data
  *   URL, for capturing public/posters/earth-*.webp (desktop at 2560×1080, mobile at 860×1864).
  */
@@ -29,7 +29,8 @@ export function RingedEarth() {
     const stage = el.closest('.planet-stage');
     const showPoster = (on: boolean) => stage?.classList.toggle('poster-on', on);
     const posterMode = new URLSearchParams(window.location.search).get('poster') === 'earth';
-    if (!threeAllowed()) {
+    // Reduced motion: the Earth stays a still (only the hero runs, in calm mode).
+    if (!threeAllowed() || (!posterMode && prefersReducedMotion())) {
       showPoster(true);
       return;
     }
