@@ -248,21 +248,32 @@ details[open]::details-content { block-size: auto; }
 .lowfx .marquee { background: #0b0b0e; }
 .lowfx .btn-ghost { background: rgba(255,255,255,.08); }
 
-/* Reduced motion, tiered (not a kill switch):
-   Tier 1 (3D, parallax, large movement, loops) is removed; Tier 2 (small rises) becomes a
-   short fade; Tier 3 (colour, opacity, focus, progress) is kept. 0.01ms, not 0s, so
-   animationend/transitionend still fire. [data-motion-keep] opts out of the safety net. */
+/* Reduced motion: the page stays alive, only big motion stops.
+   Stops: 3D scene rotation and camera moves (static posters instead), parallax, GSAP scroll scrubs,
+   large slide and scale-ins, pointer tilt. Kept, gentler: content animations (demo typing, the ticker
+   at half speed, fades, shimmer, small status loops, progress).
+   The rule below is a safety net for anything not listed: it finishes at once (0.01ms, not 0s, so
+   animationend still fires). Content animations opt out with .motion-keep (the element and everything
+   inside it), [data-motion-keep] or .mini, and define their gentle version next to the normal one. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
-  /* The small feature demos in .mini (typing, key presses) are not vestibular triggers: they keep playing. */
-  *:not([data-motion-keep]):not(.mini *), *:not(.mini *)::before, *:not(.mini *)::after {
+  :not(:is([data-motion-keep], .mini *, .motion-keep, .motion-keep *)),
+  :not(:is(.mini *, .motion-keep, .motion-keep *, .btn-shine))::before,
+  :not(:is(.mini *, .motion-keep, .motion-keep *, .btn-shine))::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     animation-delay: 0s !important;
   }
-  .page-enter { animation: page-fade .2s ease-out backwards; }
+  .page-enter { animation: page-fade .35s ease-out backwards; }
   @keyframes page-fade { from { opacity: 0; } }
-  .reveal-ready [data-reveal] { transition: opacity .2s ease-out; }
+  .reveal-ready [data-reveal] { transition: opacity .6s ease-out; }
+  /* Button sheen: a light passing over the button, not movement of content; slower. */
+  .btn-shine::after { animation-duration: 7.2s; }
+  /* Footer wordmark: fades in as it scrolls into view instead of rising 70%. */
+  @supports (animation-timeline: view()) {
+    .footer-mark span { animation-name: mark-fade; }
+    @keyframes mark-fade { from { opacity: 0; } }
+  }
   .reveal-ready [data-reveal]:not(.is-revealed) { transform: none; }
   .press:active, .lift:hover { transform: none; }
   .glass::after { display: none; }

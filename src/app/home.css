@@ -156,7 +156,8 @@
 .marquee-item i { font-style: normal; font-size: .38em; -webkit-text-stroke: 0; background: linear-gradient(135deg, #9ea3ff, #47c5fb, #f0abfc); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 .marquee { position: relative; }
-.marquee:hover .marquee-track, .marquee[data-paused] .marquee-track { animation-play-state: paused; }
+/* Moving content must be pausable (WCAG 2.2.2): hover, keyboard focus, or the toggle button. */
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track, .marquee[data-paused] .marquee-track { animation-play-state: paused; }
 .marquee-toggle {
   position: absolute; right: 12px; top: 50%; margin-top: -14px; width: 28px; height: 28px; display: grid; place-items: center;
   border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: #121217; color: #a1a1aa;
@@ -310,6 +311,16 @@
 }
 .ringed-earth { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
 .ringed-earth.is-ready { opacity: 1; }
+/* Still of the 3D Earth (public/posters/earth-*.webp, captured with ?poster=earth). The scene's camera
+   scales with the section's height on wide screens and with its width on tall ones; the poster does
+   the same, so the planet sits where the live one would. */
+.earth-poster { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; background: center bottom / auto 100% no-repeat; }
+/* The image is set only when shown, so viewers who get the live scene don't download it. */
+.planet-stage.poster-on .earth-poster { opacity: 1; background-image: url(/posters/earth-desktop.webp); }
+@media (max-aspect-ratio: 9/10) {
+  .earth-poster { background-size: 100% auto; background-position: center; }
+  .planet-stage.poster-on .earth-poster { background-image: url(/posters/earth-mobile.webp); }
+}
 .eclipse-section::after { content: ""; position: absolute; inset: auto 0 0 0; height: 18%; background: linear-gradient(180deg, transparent, #000); pointer-events: none; }
 .eclipse-content { position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; max-width: 52rem; }
 .eclipse-content .lead { margin-inline: auto; }
@@ -318,10 +329,17 @@
 /* Reduced motion, tiered (see globals.css): loops settle on a meaningful frame, 3D and
    large movement are removed, colour/opacity state changes stay. */
 @media (prefers-reduced-motion: reduce) {
-  .tilt > figure, .tilt:hover > figure, .glow-card, .glow-card:hover { transform: none; }   /* Tier 1: movement */
-  .hero-pill-dot::after, .btn-shine::after { display: none; }
+  .tilt > figure, .tilt:hover > figure, .glow-card, .glow-card:hover { transform: none; }   /* pointer/hover tilt */
   .orbit-node { border-color: #fff; }
-  .marquee-track { animation: none !important; }                /* Tier 1: auto-scrolling ticker */
-  .marquee-toggle { display: none; }
   .btn-shine:hover, .btn-shine:active { transform: none; }
+  /* Hero copy (.hero-content.motion-keep): fades in place instead of rising out of masks. */
+  .hero-kicker, .hero-right, .platform-coming, .platform-swap { animation-name: fade-in; }
+  .hero-display .line > span { animation: fade-in 1s ease-out both; }
+  .hero-display em { animation-duration: 14s; }                      /* colour shimmer, half speed */
+  .hero-pill-dot::after { animation: pulse 3s ease-in-out infinite; } /* a soft glow instead of a growing ring */
+  .scroll-cue-ring svg { animation-duration: 4s; }                    /* 3px bob, half speed */
+  /* Ticker (.marquee.motion-keep): keeps moving at half speed, no scroll-velocity skew (HomeMotion). */
+  .marquee-track { animation-duration: 110s; }
 }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pulse { 50% { opacity: .15; } }

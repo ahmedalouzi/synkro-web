@@ -4,12 +4,13 @@ import { useState } from 'react';
 
 /**
  * The scrolling ticker of supported tech. It runs for more than five seconds, so it has a
- * pause control (WCAG 2.2.2). It also pauses on hover and stops for reduced motion (CSS).
+ * pause control (WCAG 2.2.2), and it pauses on hover and on keyboard focus. With reduced motion
+ * it keeps moving at half speed (CSS).
  */
 export function Marquee({ items }: { items: string[] }) {
   const [paused, setPaused] = useState(false);
   return (
-    <div className="marquee" data-paused={paused || undefined}>
+    <div className="marquee motion-keep" data-paused={paused || undefined}>
       <div className="marquee-skew">
         <div className="marquee-track" aria-hidden="true">
           {[...items, ...items].map((m, i) => (

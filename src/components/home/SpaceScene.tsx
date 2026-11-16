@@ -14,7 +14,7 @@ import {
   SUN_TEX_FRAG,
   TEX_PLANET_FRAG,
 } from './planetShaders';
-import { loadThree } from './threeLoader';
+import { loadThree, threeAllowed } from './threeLoader';
 
 /**
  * The home hero's 3D world (three.js): a black sky of twinkling stars, a sun with a boiling
@@ -29,11 +29,13 @@ import { loadThree } from './threeLoader';
  *
  * - three.js loads on demand, after first paint; the canvas fades in once ready.
  * - Renders only while on screen and the tab is visible; pixel ratio capped at 1.5.
- * - prefers-reduced-motion: gentle motion only (orbits, twinkle, slow spin); no fly-in, camera
- *   movement or meteors.
- * - Weak devices (html.lowfx) and failures show the static poster; a speed guard degrades, then
- *   falls back to it. `?fx=full` disables the guard for testing.
- * - No WebGL: nothing renders; the CSS sky gradient behind still reads as space.
+ * - Weak devices (html.lowfx), prefers-reduced-motion at load, no WebGL and failures show the
+ *   static poster (three.js is not even downloaded then, see threeLoader.ts); a speed guard
+ *   degrades, then falls back to it. `?fx=full` disables the guard for testing.
+ * - Reduced motion switched on while the scene runs: gentle motion only (orbits, twinkle, slow
+ *   spin); no fly-in, camera movement or meteors.
+ * - WebGL context lost (GPU reset, out of video memory): the poster comes back; if the browser
+ *   restores the context, the scene resumes.
  */
 
 /** Deterministic random numbers so the sky looks the same on every visit. */
@@ -65,8 +67,11 @@ export function SpaceScene() {
     // ?poster=hero renders the composed still frame alone, for capturing public/posters/*.
     const posterMode = new URLSearchParams(window.location.search).get('poster') === 'hero';
     if (posterMode) html.classList.add('poster-capture');
-    // Weak devices (html.lowfx, set before first paint) keep the static poster instead.
-    if (!posterMode && html.classList.contains('lowfx')) return;
+    // Weak devices (html.lowfx, set before first paint) and reduced motion keep the static poster.
+    if (!threeAllowed()) {
+      hero?.classList.add('poster-on');
+      return;
+    }
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) {
       html.classList.add('lowfx');
@@ -77,7 +82,7 @@ export function SpaceScene() {
     let teardown = () => {};
 
     (async () => {
-      const [THREE, { RoomEnvironment }] = await loadThree!;
+      const [THREE, { RoomEnvironment }] = await loadThree();
       if (disposed) return;
 
       const rand = rng(7);
@@ -146,7 +151,7 @@ export function SpaceScene() {
 
       const scene = new THREE.Scene();
       const pmrem = new THREE.PMREMGenerator(renderer);
-      const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      let envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       scene.environment = envTex;
 
       const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 500);
@@ -490,6 +495,7 @@ export function SpaceScene() {
       const pointer = { x: 0, y: 0 };
       const lean = { x: 0, y: 0 };
       let onScreen = true;
+      let contextLost = false;
       let raf = 0;
       const target = new THREE.Vector3();
 
@@ -606,7 +612,7 @@ export function SpaceScene() {
 
       const loop = (now: number) => {
         raf = 0;
-        if (disposed || stopped || reduced || !onScreen || document.hidden) return;
+        if (disposed || stopped || contextLost || reduced || !onScreen || document.hidden) return;
         const frameMs = now - last;
         time += Math.min(frameMs, 50) / 1000;
         last = now;
@@ -632,6 +638,7 @@ export function SpaceScene() {
         if (!stopped) raf = requestAnimationFrame(loop);
       };
       const start = () => {
+        if (contextLost) return;
         if (reduced) {
           meteors.forEach((x) => (x.m.visible = false));
           draw(STILL_T, false);
@@ -662,11 +669,38 @@ export function SpaceScene() {
         resize();
         if (reduced) draw(STILL_T, false);
       });
+      // Context loss (GPU reset, out of video memory): a lost canvas draws nothing, so bring the
+      // poster back (as the speed guard does). three.js calls preventDefault() on the event itself,
+      // which lets the browser restore the context; it then rebuilds its GL state and re-uploads
+      // geometry, textures and shaders on the next render. Only the environment map lived in a
+      // render target, so it is rendered again.
+      const canvas = renderer.domElement;
+      const onContextLost = () => {
+        contextLost = true;
+        cancelAnimationFrame(raf);
+        raf = 0;
+        hero?.classList.remove('is-live');
+        hero?.classList.add('poster-on');
+      };
+      const onContextRestored = () => {
+        contextLost = false;
+        if (disposed || stopped) return;
+        envTex.dispose();
+        envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+        scene.environment = envTex;
+        hero?.classList.remove('poster-on');
+        if (!posterMode) hero?.classList.add('is-live');
+        perf.started = performance.now(); // the re-upload is slow; don't let the speed guard count it
+        start();
+      };
+
       io.observe(el);
       ro.observe(el);
       window.addEventListener('pointermove', onPointer, { passive: true });
       document.addEventListener('visibilitychange', start);
       reduceQuery.addEventListener('change', onReduce);
+      canvas.addEventListener('webglcontextlost', onContextLost);
+      canvas.addEventListener('webglcontextrestored', onContextRestored);
 
       try {
         await renderer.compileAsync(scene, camera);
@@ -704,15 +738,17 @@ export function SpaceScene() {
             })
             .catch(() => null);
         const [satTex, ringTex2, nepTex, moonTex, sunTex, jupTex, marsTex, uraTex] = await Promise.all(
+          // WebP where it is smaller; mars and the moon stay JPEG (smaller as JPEG). The moon is a few
+          // dozen pixels wide on screen, so its 1K map is plenty.
           [
-            'saturn_2k.jpg',
+            'saturn_2k.webp',
             'saturn_ring.png',
-            'neptune_2k.jpg',
-            'moon_4k.jpg',
-            'sun_2k.jpg',
-            'jupiter_2k.jpg',
+            'neptune_2k.webp',
+            'moon_1k.jpg',
+            'sun_2k.webp',
+            'jupiter_2k.webp',
             'mars_2k.jpg',
-            'uranus_2k.jpg',
+            'uranus_2k.webp',
           ].map(tryLoad),
         );
         if (disposed) return;
@@ -780,6 +816,8 @@ export function SpaceScene() {
         window.removeEventListener('pointermove', onPointer);
         document.removeEventListener('visibilitychange', start);
         reduceQuery.removeEventListener('change', onReduce);
+        canvas.removeEventListener('webglcontextlost', onContextLost); // forceContextLoss() below fires it
+        canvas.removeEventListener('webglcontextrestored', onContextRestored);
         scene.traverse((o) => {
           const m = o as Mesh;
           m.geometry?.dispose();

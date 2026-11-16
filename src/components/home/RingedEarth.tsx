@@ -3,46 +3,66 @@
 import { useEffect, useRef } from 'react';
 import type { Material, Mesh, Texture } from 'three';
 import { ATMO_FRAG, EARTH_FRAG, EARTH_VERT, RING_FRAG, RING_VERT } from './planetShaders';
-import { loadThree } from './threeLoader';
+import { loadThree, threeAllowed } from './threeLoader';
 
 /**
- * The closing section's planet: Earth from real 4K satellite maps (public/textures/earth, from
+ * The closing section's planet: Earth from real 2K satellite maps (public/textures/earth, from
  * Solar System Scope, CC BY 4.0, based on NASA imagery — credited in the footer), lit from behind
  * so a sunlit crescent and a blue atmosphere glow along the top while city lights spread across
  * the night side, wearing a thin Saturn-style ring that catches the planet's shadow. It leans toward the pointer; GSAP (HomeMotion) raises and grows the whole stage
  * as the section scrolls in.
  *
- * - Loads the maps (~2.2 MB) and builds only when the section comes near the viewport; renders only
- *   while on screen. If the maps fail to load, nothing renders and the CSS glow remains.
- * - prefers-reduced-motion: a single still frame.
- * - No WebGL: nothing renders; the section still has its glow and copy.
+ * - Loads the maps (~1.1 MB) and builds only when the section comes near the viewport; renders only
+ *   while on screen.
+ * - Weak devices (html.lowfx), prefers-reduced-motion at load, no WebGL, maps that fail to load and
+ *   a lost WebGL context show the static poster (.planet-stage.poster-on, public/posters/earth-*.webp)
+ *   instead; three.js is not downloaded for the first two (threeLoader.ts).
+ * - `?poster=earth` renders one still frame and puts it on <html data-earth-poster> as a PNG data
+ *   URL, for capturing public/posters/earth-*.webp (desktop at 2560×1080, mobile at 860×1864).
  */
 export function RingedEarth() {
   const host = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = host.current;
-    if (!el || !loadThree) return;
+    if (!el) return;
+    const stage = el.closest('.planet-stage');
+    const showPoster = (on: boolean) => stage?.classList.toggle('poster-on', on);
+    const posterMode = new URLSearchParams(window.location.search).get('poster') === 'earth';
+    if (!threeAllowed()) {
+      showPoster(true);
+      return;
+    }
     const probe = document.createElement('canvas');
-    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return;
+    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) {
+      showPoster(true);
+      return;
+    }
 
     let disposed = false;
     let teardown = () => {};
 
     const build = async () => {
-      const [THREE] = await loadThree!;
+      // The hero's speed guard may have switched to light mode (html.lowfx) since the page loaded.
+      if (!threeAllowed()) {
+        showPoster(true);
+        return;
+      }
+      const [THREE] = await loadThree();
       if (disposed) return;
 
-      // Real Earth maps first; without them there is nothing worth drawing.
+      // Real Earth maps first; without them there is nothing worth drawing. The packed
+      // bump/roughness/clouds map stays JPEG (4:4:4): WebP's colour subsampling blurs the clouds channel.
       let maps: Texture[];
       try {
         const loader = new THREE.TextureLoader();
         maps = await Promise.all(
-          ['earth_day_4096.jpg', 'earth_night_4096.jpg', 'earth_bump_roughness_clouds_4096.jpg'].map((f) =>
+          ['earth_day_2048.webp', 'earth_night_2048.webp', 'earth_bump_roughness_clouds_2048.jpg'].map((f) =>
             loader.loadAsync(`/textures/earth/${f}`),
           ),
         );
       } catch {
+        showPoster(true);
         return;
       }
       if (disposed) {
@@ -51,8 +71,8 @@ export function RingedEarth() {
       }
       const [dayMap, nightMap, brcMap] = maps;
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-      const ratioFor = (w: number, h: number) => Math.min(window.devicePixelRatio, 1.5, Math.sqrt(2.1e6 / Math.max(1, w * h)));
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: posterMode });
+      const ratioFor = (w: number, h: number) => (posterMode ? 1 : Math.min(window.devicePixelRatio, 1.5, Math.sqrt(2.1e6 / Math.max(1, w * h))));
       renderer.setPixelRatio(ratioFor(window.innerWidth, window.innerHeight));
       renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -153,12 +173,13 @@ export function RingedEarth() {
       const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
       // Weak devices (html.lowfx) get one still frame instead of a running scene.
       const lowfx = () => document.documentElement.classList.contains('lowfx');
-      let reduced = lowfx();
-      let gentle = reduceQuery.matches; // reduced motion: keep turning, drop the pointer lean
+      let reduced = lowfx() || posterMode;
+      let gentle = reduceQuery.matches; // reduced motion switched on later: keep turning, drop the pointer lean
       let time = 0;
       let last = performance.now();
       let raf = 0;
       let onScreen = true;
+      let contextLost = false;
       const pointer = { x: 0, y: 0 };
       const lean = { x: 0, y: 0 };
 
@@ -179,13 +200,14 @@ export function RingedEarth() {
 
       const loop = (now: number) => {
         raf = 0;
-        if (disposed || reduced || !onScreen || document.hidden) return;
+        if (disposed || contextLost || reduced || !onScreen || document.hidden) return;
         time += Math.min(now - last, 50) / 1000;
         last = now;
         draw(time, true);
         raf = requestAnimationFrame(loop);
       };
       const start = () => {
+        if (contextLost) return;
         if (reduced) return draw(4, false);
         if (!raf && onScreen && !document.hidden) {
           last = performance.now();
@@ -210,11 +232,31 @@ export function RingedEarth() {
         resize();
         if (reduced) draw(4, false);
       });
+      // Context loss (GPU reset, out of video memory): show the poster until the browser restores the
+      // context (three.js calls preventDefault() itself, then re-uploads everything on the next render).
+      const canvas = renderer.domElement;
+      const onContextLost = () => {
+        contextLost = true;
+        cancelAnimationFrame(raf);
+        raf = 0;
+        el.classList.remove('is-ready');
+        showPoster(true);
+      };
+      const onContextRestored = () => {
+        contextLost = false;
+        if (disposed) return;
+        start();
+        el.classList.add('is-ready');
+        showPoster(false);
+      };
+
       io.observe(el);
       ro.observe(el);
       window.addEventListener('pointermove', onPointer, { passive: true });
       document.addEventListener('visibilitychange', start);
       reduceQuery.addEventListener('change', onReduce);
+      canvas.addEventListener('webglcontextlost', onContextLost);
+      canvas.addEventListener('webglcontextrestored', onContextRestored);
 
       try {
         await renderer.compileAsync(scene, camera);
@@ -224,6 +266,10 @@ export function RingedEarth() {
       if (!disposed) {
         start();
         el.classList.add('is-ready');
+        if (posterMode) {
+          draw(4, false);
+          document.documentElement.dataset.earthPoster = canvas.toDataURL('image/png');
+        }
       }
 
       teardown = () => {
@@ -233,6 +279,8 @@ export function RingedEarth() {
         window.removeEventListener('pointermove', onPointer);
         document.removeEventListener('visibilitychange', start);
         reduceQuery.removeEventListener('change', onReduce);
+        canvas.removeEventListener('webglcontextlost', onContextLost); // forceContextLoss() below fires it
+        canvas.removeEventListener('webglcontextrestored', onContextRestored);
         scene.traverse((o) => {
           const m = o as Mesh;
           m.geometry?.dispose();
@@ -246,6 +294,14 @@ export function RingedEarth() {
       };
       if (disposed) teardown();
     };
+
+    if (posterMode) {
+      void build();
+      return () => {
+        disposed = true;
+        teardown();
+      };
+    }
 
     // Build only once the section is within ~one screen of the viewport.
     const near = new IntersectionObserver(

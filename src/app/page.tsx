@@ -40,7 +40,7 @@ export default async function Home() {
         <SpaceScene />
         <div className="space-fade" aria-hidden="true" />
 
-        <div className="hero-content">
+        <div className="hero-content motion-keep">
           <div className="hero-left">
             <p className="hero-kicker">
               <span className="hero-pill-dot" />
@@ -187,6 +187,8 @@ export default async function Home() {
       {/* ── CTA: Earth wearing Saturn's ring rises below the copy ── */}
       <section className="eclipse-section">
         <div className="planet-stage" aria-hidden="true">
+          {/* A still of the 3D Earth: shown on weak devices, with reduced motion, or without WebGL. */}
+          <div className="earth-poster" />
           <RingedEarth />
         </div>
         <div className="wrap eclipse-content" data-split>
