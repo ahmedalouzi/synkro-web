@@ -195,7 +195,7 @@ export function PlanCards() {
   return (
     <div className="flex flex-col gap-10">
       <BillingToggle value={billing} onChange={setBilling} />
-      <div className="plan-grid">
+      <div className="plan-grid motion-keep">
         {plans.map((plan, i) => (
           <div key={plan.id} data-reveal style={{ transitionDelay: `${i * 110}ms` }} className="plan-slot">
             <article className={`plan-card ${plan.highlight ? `plan-card--${plan.highlight}` : ''}`}>

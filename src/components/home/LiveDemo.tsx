@@ -6,8 +6,8 @@ import './live-demo.css';
 /**
  * The hero centerpiece: a faithful replica of the Synkro workspace (explorer, editor, Expo
  * preview, terminal and agent chat). The agent reads the project, streams its plan, writes
- * the screen line by line, and the phone fills in as the code lands. Loops; shows the
- * finished state for viewers who prefer reduced motion.
+ * the screen line by line, and the phone fills in as the code lands. Loops. With reduced motion it
+ * still types (text appearing is not movement); the entrance, tilt and moving parts are off.
  */
 
 const CODE = [
@@ -70,6 +70,17 @@ const FINAL = LOOP - 1;
 const LINE_H = 20;
 const VISIBLE_LINES = 17;
 
+// Every moment where something on screen switches (see the components below).
+const MARKS = [T.thinking, ...T.steps, T.plan, T.code, CODE_END, RELOAD, RELOADED, KEEP - 1400, KEEP];
+const typedCount = (t: number, start: number, ms: number, max: number) => Math.max(0, Math.min(max, Math.floor((t - start) / ms)));
+
+/** Changes exactly when the rendered demo would change; the clock re-renders React only then. */
+function frameKey(t: number) {
+  let phase = 0;
+  for (const m of MARKS) if (t >= m) phase++;
+  return `${phase}|${typedCount(t, T.plan, PLAN_MS, PLAN.length)}|${typedCount(t, T.code, CHAR_MS, TOTAL)}|${typedCount(t, RELOADED + 200, PLAN_MS, DONE.length)}`;
+}
+
 const STEPS = [
   { at: T.steps[0], text: 'Read', target: 'app/(tabs)/_layout.tsx' },
   { at: T.steps[1], text: 'Searched', target: '“useSchedule”' },
@@ -104,6 +115,9 @@ function highlight(line: string) {
   if (last < line.length) parts.push({ text: line.slice(last), cls: 'tk-plain' });
   return parts;
 }
+
+/** Fully typed lines never change: highlight them once. */
+const HIGHLIGHTED = CODE.map(highlight);
 
 /** Full lines typed after `chars` characters. */
 function linesTyped(chars: number) {
@@ -387,9 +401,9 @@ export function LiveDemo() {
   const [animated, setAnimated] = useState(false);
   const frame = useRef<HTMLDivElement>(null);
 
-  // The timeline clock: one loop, paused while the demo is off screen.
+  // The timeline clock: one loop, paused while the demo is off screen. Also runs with reduced
+  // motion: typing is text appearing, not movement.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const el = frame.current;
     setAnimated(true);
     let visible = true;
@@ -398,15 +412,19 @@ export function LiveDemo() {
     let clock = 0;
     let prev = performance.now();
     let shown = -1;
+    let shownKey = '';
     let raf = 0;
     const tick = (now: number) => {
       const dt = Math.min(now - prev, 100);
       prev = now;
       if (visible && !document.hidden) {
         clock = (clock + dt) % LOOP;
-        // ~40fps is plenty for typing and keeps React work light.
-        if (Math.abs(clock - shown) >= 25 || clock < shown) {
+        // Re-render only when something visible changes (most of the loop is pauses), and at most
+        // ~40 times a second while typing: plenty for text and keeps React work light.
+        const key = frameKey(clock);
+        if (key !== shownKey && (clock - shown >= 25 || clock < shown)) {
           shown = clock;
+          shownKey = key;
           setT(clock);
         }
       }
@@ -453,7 +471,7 @@ export function LiveDemo() {
   let remaining = chars;
 
   return (
-    <div className="ld-stage" aria-label="The Atomvs agent building a React Native Classes screen while the app updates on the phone preview" role="img">
+    <div className="ld-stage motion-keep" aria-label="The Atomvs agent building a React Native Classes screen while the app updates on the phone preview" role="img">
       <div ref={frame} className={`ld-frame ${reloaded ? 'is-reloaded' : ''}`}>
         <div className="ld-glow" aria-hidden="true" />
 
@@ -514,7 +532,7 @@ export function LiveDemo() {
                             <div key={i} className={`ld-line ${lineDone || isCursor ? 'is-added' : ''} ${isCursor && typing ? 'is-cursor' : ''}`}>
                               <span className="ld-ln">{i + 1}</span>
                               <span>
-                                {highlight(line.slice(0, visible)).map((p, j) => <span key={j} className={p.cls}>{p.text}</span>)}
+                                {(visible === line.length ? HIGHLIGHTED[i] : highlight(line.slice(0, visible))).map((p, j) => <span key={j} className={p.cls}>{p.text}</span>)}
                                 {isCursor && typing && <span className="ld-caret" />}
                               </span>
                             </div>

@@ -54,7 +54,7 @@ export function Footer() {
         </span>
       </div>
 
-      <div className="footer-mark" aria-hidden="true">
+      <div className="footer-mark motion-keep" aria-hidden="true">
         {'ATOMVS'.split('').map((c, i) => (
           <span key={i} style={{ '--i': i } as React.CSSProperties}>{c}</span>
         ))}

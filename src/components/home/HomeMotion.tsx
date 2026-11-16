@@ -14,7 +14,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
  * Tiered on prefers-reduced-motion (gsap.matchMedia reacts to live OS changes):
  *  - full motion: masked heading reveals, the comet orbit, a rising horizon, parallax chips,
  *    a scroll-velocity skew on the ticker, the eclipse growing into view;
- *  - reduced: no movement — short (≤200ms) fades and final states only.
+ *  - reduced: no scroll-linked movement — headings fade in (0.6s) as they arrive, final states otherwise.
  * Only transform, opacity and SVG stroke offsets animate. useGSAP reverts everything on unmount.
  */
 export function HomeMotion() {
@@ -36,7 +36,7 @@ export function HomeMotion() {
           ScrollTrigger.batch('[data-split]', {
             start: 'top 85%',
             once: true,
-            onEnter: (els) => gsap.to(els, { autoAlpha: 1, duration: 0.2, ease: 'power1.out' }),
+            onEnter: (els) => gsap.to(els, { autoAlpha: 1, duration: 0.6, ease: 'power1.out', stagger: 0.08 }),
           });
           lightAll();
           return () => [...steps, ...nodes].forEach((s) => s.classList.remove('is-lit'));

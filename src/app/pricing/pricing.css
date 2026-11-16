@@ -1,7 +1,7 @@
 /* ── Pricing ─────────────────────────────────────────────────────────────────
    Three plans as three worlds: Free wears the Moon, Pro wears Saturn, Pro+ wears Jupiter.
-   Only transform/opacity animate (plus the tiny planet maps scrolling); everything has a
-   still state under prefers-reduced-motion (see globals.css). */
+   Only transform/opacity animate (plus the tiny planet maps scrolling and the Pro border light);
+   reduced motion keeps the cards alive, gentler (see the end of this file and globals.css). */
 
 .pricing-page { position: relative; overflow: hidden; }
 
@@ -173,9 +173,19 @@
   box-shadow: inset -5px -3px 7px rgba(0,0,0,.85), inset 2px 1px 3px rgba(255,255,255,.2);
 }
 
+/* Reduced motion (the page-wide rule is in globals.css). The plan cards (.plan-grid.motion-keep) stay
+   alive, gentler: the Pro border light and the planet maps at half speed, the status dot pulses
+   instead of growing, a new price fades in instead of rolling up. The big orbit lines behind the page
+   and the hover lifts stop. */
 @media (prefers-reduced-motion: reduce) {
-  .plan-card--popular { animation: none !important; --orbit: 40deg; }
-  .plan-card:hover { transform: none; }
-  .pricing-orbits span, .plan-planet, .spec-status i::after { animation: none !important; }
-  .spec:hover { transform: none; }
+  .plan-card--popular { animation-duration: 12s; }
+  .plan-planet { animation-duration: 80s; }
+  .spec-status i::after { animation: plan-pulse 3s ease-in-out infinite; }
+  .plan-amount { animation-name: plan-fade; }
+  .plan-card:hover, .spec:hover { transform: none; }
+  .pricing-orbits span { animation: none !important; }
 }
+@keyframes plan-pulse { 50% { opacity: .2; } }
+@keyframes plan-fade { from { opacity: 0; } }
+/* Weak devices: the Pro border light animates a gradient angle, which repaints every frame; keep it still. */
+.lowfx .plan-card--popular { animation: none; --orbit: 40deg; }

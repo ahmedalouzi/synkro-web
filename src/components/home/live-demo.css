@@ -8,14 +8,23 @@
   transition: transform .25s ease-out;
 }
 
-@property --ld-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+/* The glow's colours travel around the frame: a fixed conic gradient on a square as wide as the
+   frame's diagonal (hypot, in container units) turns with `transform`, which the compositor (GPU)
+   animates without repainting. The frame's rounded box clips it, then it is blurred. (Animating the
+   gradient's angle instead repainted and re-blurred it on the main thread every frame.) */
 .ld-glow {
-  position: absolute; inset: -3px; border-radius: 18px;
-  background: conic-gradient(from var(--ld-angle), rgba(124,131,255,0), rgba(124,131,255,.9), rgba(97,218,251,.75), rgba(240,171,252,.6), rgba(124,131,255,0) 60%);
-  filter: blur(22px); opacity: .55; animation: ld-spin 8s linear infinite; transition: opacity .6s;
+  position: absolute; inset: -3px; border-radius: 18px; overflow: hidden; container-type: size;
+  filter: blur(22px); opacity: .55; transition: opacity .6s;
+}
+.ld-glow::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 200%; width: hypot(100cqw, 100cqh); aspect-ratio: 1; translate: -50% -50%;
+  background: conic-gradient(rgba(124,131,255,0), rgba(124,131,255,.9), rgba(97,218,251,.75), rgba(240,171,252,.6), rgba(124,131,255,0) 60%);
+  animation: ld-spin 8s linear infinite;
 }
 .ld-frame.is-reloaded .ld-glow { opacity: .8; }
-@keyframes ld-spin { to { --ld-angle: 360deg; } }
+@keyframes ld-spin { to { transform: rotate(360deg); } }
+/* Weak devices: the glow stays, still. */
+.lowfx .ld-glow::before { animation: none; }
 
 .ld-window {
   position: relative; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,.12);
@@ -288,10 +297,13 @@
 .ld-float__plus { font-family: var(--font-mono); color: #4ade80; }
 .ld-float--problems { bottom: 150px; right: -22px; color: #4ade80; }
 
-/* Finished, still state for viewers who turn motion off. */
+/* Reduced motion (.ld-stage.motion-keep): the demo keeps playing (typing, carets, shimmer, small
+   pop-ins, spinners, the reload sweep). Off: the 3D entrance (a fade instead), the pointer tilt
+   (LiveDemo.tsx), the turning glow (static), the phone's floating bob and the reload ripple (a scale-in). */
 @media (prefers-reduced-motion: reduce) {
-  .ld-stage, .ld-glow, .ld-phone, .ld-code-empty svg { animation: none !important; }
-  .ld-app-head, .ld-app-add, .ld-app-day, .ld-app-card, .ld-steps .ld-step, .ld-float { transition: none !important; }
+  .ld-stage { animation-name: ld-fade-in; }
+  @keyframes ld-fade-in { from { opacity: 0; } }
+  .ld-glow::before, .ld-phone, .ld-frame.is-reloaded .ld-ripple { animation: none; }
 }
 
 /* WebKit (html.webkit): no 3D. Safari draws the fixed page background over the parts of a 3D-tilted
