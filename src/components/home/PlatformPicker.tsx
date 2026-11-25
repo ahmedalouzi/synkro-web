@@ -32,12 +32,20 @@ const icons: Record<Platform, JSX.Element> = {
 const names: Record<Platform, string> = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
 
 /**
- * The hero card's platform switch. Windows downloads today; macOS and Linux are shown so people
- * know they are coming — picking one swaps the download button for a "coming soon" note.
+ * The hero card's platform switch. Windows, and Linux when the latest release has its files (AppImage + .deb);
+ * macOS is shown so people know it is coming — picking it swaps the download button for a "coming soon" note.
+ * Every link comes from the latest published release (latest-release.ts).
  */
-export function PlatformPicker({ windowsUrl }: { windowsUrl: string }) {
+export function PlatformPicker({ windowsUrl, appImageUrl, debUrl, version }: {
+  windowsUrl: string;
+  appImageUrl?: string | null;
+  debUrl?: string | null;
+  version?: string | null;
+}) {
   const [platform, setPlatform] = useState<Platform>('windows');
-  const soon = platform !== 'windows';
+  const linux = Boolean(appImageUrl || debUrl);
+  const available = (p: Platform) => p === 'windows' || (p === 'linux' && linux);
+  const soon = !available(platform);
 
   return (
     <div className="platform-picker">
@@ -53,7 +61,7 @@ export function PlatformPicker({ windowsUrl }: { windowsUrl: string }) {
           >
             {icons[p]}
             <span>{names[p]}</span>
-            {p !== 'windows' && <span className="platform-soon">Soon</span>}
+            {!available(p) && <span className="platform-soon">Soon</span>}
           </button>
         ))}
       </div>
@@ -64,6 +72,16 @@ export function PlatformPicker({ windowsUrl }: { windowsUrl: string }) {
             {icons[platform]}
             <span className="ml-2.5">{names[platform]} — coming soon</span>
           </span>
+        ) : platform === 'linux' ? (
+          <>
+            {appImageUrl && (
+              <a key="appimage" href={appImageUrl} className="btn-shine press platform-swap">
+                <span className="relative z-[1] mr-2.5 inline-flex">{icons.linux}</span>
+                <span>Download AppImage</span>
+              </a>
+            )}
+            {debUrl && <a key="deb" href={debUrl} className="btn-ghost press">.deb</a>}
+          </>
         ) : (
           <a key="windows" href={windowsUrl} className="btn-shine press platform-swap">
             <span className="relative z-[1] mr-2.5 inline-flex">{icons.windows}</span>
@@ -75,8 +93,10 @@ export function PlatformPicker({ windowsUrl }: { windowsUrl: string }) {
 
       <p className="hero-card-foot" aria-live="polite">
         {soon
-          ? `We're building Atomvs for ${names[platform]}. Use Windows for now — your account carries over.`
-          : 'Free to start · No credit card'}
+          ? `We're building Atomvs for ${names[platform]}. Use Windows${linux ? ' or Linux' : ''} for now — your account carries over.`
+          : platform === 'linux'
+            ? 'x64 · .deb for Ubuntu and Debian, AppImage for other distributions'
+            : `Free to start · No credit card${version ? ` · v${version}` : ''}`}
       </p>
     </div>
   );

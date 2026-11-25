@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { latestWindowsDownload } from '@/lib/latest-release';
+import { latestDownloads } from '@/lib/latest-release';
 
 // The Download links follow the latest release: re-checked at most every 10 minutes.
 export const revalidate = 600;
@@ -28,7 +28,8 @@ const steps = [
 ];
 
 export default async function Home() {
-  const windows = await latestWindowsDownload();
+  const downloads = await latestDownloads();
+  const windows = downloads.windows;
   return (
     <>
       <HomeMotion />
@@ -71,7 +72,7 @@ export default async function Home() {
               <p className="hero-card-text">
                 Atomvs writes the code, shows every diff, and you watch the app change on a real device frame — all in one window.
               </p>
-              <PlatformPicker windowsUrl={windows.url} />
+              <PlatformPicker windowsUrl={windows.url} appImageUrl={downloads.appImage?.url} debUrl={downloads.deb?.url} version={downloads.version} />
             </div>
             <a href="#demo" className="scroll-cue">
               <span className="scroll-cue-ring" aria-hidden="true">
