@@ -34,10 +34,11 @@ export interface Plan {
   /** Roughly how many apps those credits build. */
   apps: string;
   models: string;
-  /** Cloud Android builds per day. */
+  /**
+   * Cloud Android builds per rolling 24 hours. Must match PLAN_POLICIES.dailyBuilds on the server
+   * (packages/agent/src/models/usage-limits.ts in the Synkro repo): Free 3, Pro 10, Pro+ 20.
+   */
   apkPerDay: number;
-  /** 0 = standard queue, 1 = priority, 2 = top priority. */
-  priority: 0 | 1 | 2;
   whenOut: string;
   /** Apps built on this plan show the "Made with Atomvs" badge. */
   badge: boolean;
@@ -61,7 +62,6 @@ export const plans: Plan[] = [
     apps: '3–4 apps',
     models: 'Fast model',
     apkPerDay: 3,
-    priority: 0,
     whenOut: 'Pauses until your credits refresh',
     badge: true,
     planet: 'moon',
@@ -75,8 +75,7 @@ export const plans: Plan[] = [
     credits: 4000,
     apps: '100 apps',
     models: 'Every model',
-    apkPerDay: 15,
-    priority: 1,
+    apkPerDay: 10,
     whenOut: 'Keeps going on the fast model',
     badge: false,
     planet: 'saturn',
@@ -91,8 +90,7 @@ export const plans: Plan[] = [
     credits: 12000,
     apps: '300 apps',
     models: 'Every model, strongest first',
-    apkPerDay: 30,
-    priority: 2,
+    apkPerDay: 20,
     whenOut: 'Keeps going on the fast model',
     badge: false,
     planet: 'jupiter',
