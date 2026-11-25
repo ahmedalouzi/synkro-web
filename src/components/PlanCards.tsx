@@ -97,11 +97,6 @@ const Icon = {
       <path d="M12 7v6m-2.5-2.5L12 13l2.5-2.5M10 18h4" />
     </svg>
   ),
-  priority: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M13 2 4.5 13.5H12L11 22l8.5-11.5H12z" />
-    </svg>
-  ),
   out: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
@@ -145,7 +140,7 @@ function PlanSpecs({ plan }: { plan: Plan }) {
         </div>
       </Tile>
 
-      <Tile icon={Icon.apk} label="Build APK">
+      <Tile icon={Icon.apk} label="Build APK" wide>
         <div className="spec-value">
           <strong>{plan.apkPerDay}</strong>
           <span>a day</span>
@@ -155,15 +150,6 @@ function PlanSpecs({ plan }: { plan: Plan }) {
             <i key={i} className={i < filled ? 'on' : ''} />
           ))}
         </span>
-      </Tile>
-
-      <Tile icon={Icon.priority} label="Build queue">
-        <span className="spec-bars" aria-hidden="true">
-          {[0, 1, 2].map((i) => (
-            <i key={i} className={i <= plan.priority ? 'on' : ''} />
-          ))}
-        </span>
-        <span className="spec-note">{['Standard', 'Priority', 'Top priority'][plan.priority]}</span>
       </Tile>
 
       <Tile icon={Icon.out} label="Credits run out">
@@ -248,18 +234,6 @@ export function PlanCompare() {
     { label: 'Roughly', cell: (p) => p.apps },
     { label: 'Models', cell: (p) => p.models },
     { label: 'Build APK', cell: (p) => `${p.apkPerDay} a day` },
-    {
-      label: 'Build priority',
-      cell: (p) =>
-        p.priority === 0 ? (
-          <span className="text-muted">Standard</span>
-        ) : (
-          <span className="inline-flex items-center gap-0.5" aria-label={p.priority === 2 ? 'Top priority' : 'Priority'}>
-            <Check />
-            {p.priority === 2 && <Check />}
-          </span>
-        ),
-    },
     { label: 'When credits run out', cell: (p) => p.whenOut },
     { label: '“Made with Atomvs” badge', cell: (p) => (p.badge ? 'Shown' : <span className="inline-flex"><Check on={false} /><span className="sr-only">Removed</span></span>) },
   ];
